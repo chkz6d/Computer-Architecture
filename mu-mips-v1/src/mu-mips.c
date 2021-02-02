@@ -306,6 +306,29 @@ void load_program() {
 void handle_instruction()
 {
 	/*IMPLEMENT THIS*/
+
+	// Local Variables
+	// uint32_t PC = CURRENT_STATE.PC; // Program counter has the 32 bit instruction
+	// int firstSix = PC;
+
+
+	// NEED TO DO THIS
+	// PSUEDOCODE
+	// switch(){
+	// 	case I:
+
+	// 	case R:
+
+	// 	case J:
+
+	// }
+
+	// R TYPE
+
+	// I TYPE
+
+	// J TYPE
+
 	/* execute one instruction at a time. Use/update CURRENT_STATE and and NEXT_STATE, as necessary.*/
 }
 
@@ -339,6 +362,11 @@ void print_program(){
 /************************************************************/
 void print_instruction(uint32_t addr){
 	/*IMPLEMENT THIS*/
+	uint32_t PC = CURRENT_STATE.PC; // Program counter has the 32 bit instruction
+	// int firstSix = PC;
+	printf("Program Counter %d\n", PC);
+	printf("Address %d\n", addr);
+	// DO THIS ALSO
 }
 
 /***************************************************************/
