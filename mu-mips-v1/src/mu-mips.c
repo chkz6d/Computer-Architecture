@@ -442,76 +442,147 @@ void print_instruction(uint32_t addr){
 	case 000000:
 		switch (lastNums)
 		{
-		case /* constant-expression */:
-			/* code */
+		case 100000:
+			printf("ADD\n");
 			break;
-		
-		default:
+		case 100001:
+			printf("ADDU\n");
+			break;
+		case 100010:
+			printf("SUB\n");
+			break;
+		case 100011:
+			printf("SUBU\n");
+			break;
+		case 011000:
+			printf("MULT\n");
+			break;
+		case 011001:
+			printf("MULTU\n");
+			break;
+		case 011010:
+			printf("DIV\n");
+			break;
+		case 011011:
+			printf("DIVU\n");
+			break;
+		case 100100:
+			printf("AND\n");
+			break;
+		case 100101:
+			printf("OR\n");
+			break;
+		case 100110:
+			printf("XOR\n");
+			break;
+		case 100111:
+			printf("NOR\n");
+			break;
+		case 101010:
+			printf("SLT\n");
+			break;
+		case 000000:
+			printf("SLL\n");
+			break;
+		case 000010:
+			printf("SRL\n");
+			break;
+		case 000011:
+			printf("SRA\n");
+			break;
+		case 010000:
+			printf("MFHI\n");
+			break;
+		case 010010:
+			printf("MFLO\n");
+			break;
+		case 010001:
+			printf("MDHI\n");
+			break;
+		case 010011:
+			printf("MDLO\n");
+			break;
+		case 001000:
+			printf("JR\n");
+			break;
+		case 001001:
+			printf("JALR\n");
+			break;
+		case 001100:
+			printf("SYSCALL\n");
 			break;
 		}
-		/* code */
 		break;
 	
 	// Register case code
 	case 000110:
-		/* code */
+		printf("BLEZ\n");
 		break;
 	case 000001:
-		/* code */
-		// two here
+		switch (r2Nums){
+		case 00000:
+			printf("BLTZ\n");
+			break;
+		case 00001:
+			printf("BGEZ\n");
+			break;
+		}
 		break;
 	case 000111:
-		/* code */
+		printf("BGTZ\n");
 		break;
 
 	// Normal case code
 	case 001000:
-		/* code */
+		printf("ADDI\n");
 		break;
 	case 001001:
-		/* code */
+		printf("ADDIU\n");
 		break;
 	case 001100:
-		/* code */
+		printf("ANDI\n");
 		break;
 	case 001101:
-		/* code */
+		printf("ORI\n");
 		break;
 	case 001110:
-		/* code */
+		printf("XORI\n");
 		break;
 	case 001010:
-		/* code */
+		printf("SLTI\n");
 		break;
 	case 100011:
-		/* code */
+		printf("LW\n");
 		break;
 	case 100000:
-		/* code */
+		printf("LB\n");
 		break;
 	case 100001:
-		/* code */
+		printf("LH\n");
 		break;
 	case 001111:
-		/* code */
+		printf("LUI\n");
 		break;
 	case 101011:
-		/* code */
+		printf("SW\n");
 		break;
 	case 101000:
-		/* code */
+		printf("SB\n");
 		break;
 	case 101001:
-		/* code */
+		printf("SH\n");
 		break;
 	case 000100:
-		/* code */
+		printf("BEQ\n");
+		break;
+	case 000101:
+		printf("BNE\n");
 		break;
 	case 000010:
-		/* code */
+		printf("J\n");
 		break;
 	case 000011:
-		/* code */
+		printf("JAL\n");
 		break;
 	
 	default:
