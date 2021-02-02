@@ -357,77 +357,6 @@ void print_program(){
 	}
 }
 
-char* HexToBin(char* hexdec)
-{
- 
-    long int i = 0;
-	char* dummy;
-    while (hexdec[i]) {
- 
-        switch (hexdec[i]) {
-        case '0':
-			strncat(dummy, "0000", 4); 
-            break;
-        case '1':
-            strncat(dummy, "0001", 4); 
-            break;
-        case '2':
-            strncat(dummy, "0010", 4); 
-            break;
-        case '3':
-            strncat(dummy, "0011", 4); 
-            break;
-        case '4':
-            strncat(dummy, "0100", 4); 
-            break;
-        case '5':
-            strncat(dummy, "0101", 4); 
-            break;
-        case '6':
-            strncat(dummy, "0110", 4); 
-            break;
-        case '7':
-            strncat(dummy, "0111", 4); 
-            break;
-        case '8':
-            strncat(dummy, "1000", 4); 
-            break;
-        case '9':
-            strncat(dummy, "1001", 4); 
-            break;
-        case 'A':
-        case 'a':
-            strncat(dummy, "1010", 4); 
-            break;
-        case 'B':
-        case 'b':
-            strncat(dummy, "1011", 4); 
-            break;
-        case 'C':
-        case 'c':
-            strncat(dummy, "1100", 4); 
-            break;
-        case 'D':
-        case 'd':
-            strncat(dummy, "1101", 4); 
-            break;
-        case 'E':
-        case 'e':
-            strncat(dummy, "1110", 4); 
-            break;
-        case 'F':
-        case 'f':
-            strncat(dummy, "1111", 4); 
-            break;
-        default:
-            printf("\nInvalid hexadecimal digit %c",
-                   hexdec[i]);
-        }
-        i++;
-    }
-	return dummy;
-}
-
 /************************************************************/
 /* Print the instruction at given memory address (in MIPS assembly format)    */
 /************************************************************/
@@ -497,26 +426,100 @@ void print_instruction(uint32_t addr){
 		JALR	// 000000, 001001
 	};
 
-	char textToWrite[8];
-	sprintf(textToWrite, "%lu", addr);
-	char* binAddr = HexToBin(textToWrite);
-	char* firstSix;
-	strncpy(firstSix, binAddr, 6);
-	printf("\n string received %s\n", firstSix);
+	uint32_t readAddr = mem_read_32(addr);
+	uint32_t mask = 0xFC000000;
+	uint32_t r1Mask = 0x03E00000 >> 21;
+	uint32_t r2Mask = 0x001F0000 >> 16;
+	uint32_t lastMask = 0x00000006;
+	uint32_t firstNums = readAddr & mask;
+	uint32_t r1Nums = readAddr & r1Mask;
+	uint32_t r2Nums = readAddr & r2Mask;
+	uint32_t lastNums = readAddr & lastMask;
 
-	// switch (addr)
-	// {
-	// case /* constant-expression */:
-	// 	/* code */
-	// 	break;
+	switch (firstNums)
+	{
+	// Special case code
+	case 000000:
+		switch (lastNums)
+		{
+		case /* constant-expression */:
+			/* code */
+			break;
+		
+		default:
+			break;
+		}
+		/* code */
+		break;
 	
-	// default:
-	// 	break;
-	// }
+	// Register case code
+	case 000110:
+		/* code */
+		break;
+	case 000001:
+		/* code */
+		// two here
+		break;
+	case 000111:
+		/* code */
+		break;
+
+	// Normal case code
+	case 001000:
+		/* code */
+		break;
+	case 001001:
+		/* code */
+		break;
+	case 001100:
+		/* code */
+		break;
+	case 001101:
+		/* code */
+		break;
+	case 001110:
+		/* code */
+		break;
+	case 001010:
+		/* code */
+		break;
+	case 100011:
+		/* code */
+		break;
+	case 100000:
+		/* code */
+		break;
+	case 100001:
+		/* code */
+		break;
+	case 001111:
+		/* code */
+		break;
+	case 101011:
+		/* code */
+		break;
+	case 101000:
+		/* code */
+		break;
+	case 101001:
+		/* code */
+		break;
+	case 000100:
+		/* code */
+		break;
+	case 000010:
+		/* code */
+		break;
+	case 000011:
+		/* code */
+		break;
+	
+	default:
+		break;
+	}
 
 
 	printf("\nAddress Hex %d\n", addr);
-	// DO THIS ALSO
 }
 
 
