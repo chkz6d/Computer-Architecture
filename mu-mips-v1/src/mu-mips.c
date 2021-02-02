@@ -357,17 +357,167 @@ void print_program(){
 	}
 }
 
+char* HexToBin(char* hexdec)
+{
+ 
+    long int i = 0;
+	char* dummy;
+    while (hexdec[i]) {
+ 
+        switch (hexdec[i]) {
+        case '0':
+			strncat(dummy, "0000", 4); 
+            break;
+        case '1':
+            strncat(dummy, "0001", 4); 
+            break;
+        case '2':
+            strncat(dummy, "0010", 4); 
+            break;
+        case '3':
+            strncat(dummy, "0011", 4); 
+            break;
+        case '4':
+            strncat(dummy, "0100", 4); 
+            break;
+        case '5':
+            strncat(dummy, "0101", 4); 
+            break;
+        case '6':
+            strncat(dummy, "0110", 4); 
+            break;
+        case '7':
+            strncat(dummy, "0111", 4); 
+            break;
+        case '8':
+            strncat(dummy, "1000", 4); 
+            break;
+        case '9':
+            strncat(dummy, "1001", 4); 
+            break;
+        case 'A':
+        case 'a':
+            strncat(dummy, "1010", 4); 
+            break;
+        case 'B':
+        case 'b':
+            strncat(dummy, "1011", 4); 
+            break;
+        case 'C':
+        case 'c':
+            strncat(dummy, "1100", 4); 
+            break;
+        case 'D':
+        case 'd':
+            strncat(dummy, "1101", 4); 
+            break;
+        case 'E':
+        case 'e':
+            strncat(dummy, "1110", 4); 
+            break;
+        case 'F':
+        case 'f':
+            strncat(dummy, "1111", 4); 
+            break;
+        default:
+            printf("\nInvalid hexadecimal digit %c",
+                   hexdec[i]);
+        }
+        i++;
+    }
+	return dummy;
+}
+
 /************************************************************/
 /* Print the instruction at given memory address (in MIPS assembly format)    */
 /************************************************************/
 void print_instruction(uint32_t addr){
 	/*IMPLEMENT THIS*/
-	uint32_t PC = CURRENT_STATE.PC; // Program counter has the 32 bit instruction
-	// int firstSix = PC;
-	printf("Program Counter %d\n", PC);
-	printf("Address %d\n", addr);
+
+	// ALU Instructions: 
+	// ADD, ADDU, ADDI, ADDIU, SUB, SUBU, MULT, MULTU, DIV, DIVU, AND, ANDI, OR, ORI, XOR, XORI, NOR, SLT, SLTI, SLL, SRL, SRA
+
+	// Load/Store Instructions: 
+	// LW, LB, LH, LUI, SW, SB, SH, MFHI, MFLO, MTHI, MTLO
+
+	// Control Flow Instructions: 
+	// BEQ, BNE, BLEZ, BLTZ, BGEZ, BGTZ, J, JR, JAL, JALR
+
+	// System Call: 
+	// SYSCALL (you should implement it to exit the program. To exit the program, the value of 10 (0xA in hex) should be in $v0 when SYSCALL is executed.
+	enum ALU{
+		ADD, 	// 000000, 100000
+		ADDU, 	// 000000, 100001
+		ADDI,	// 001000
+		ADDIU,	// 001001
+		SUB,	// 000000, 100010
+		SUBU,	// 000000, 100011
+		MULT, 	// 000000, 011000
+		MULTU, 	// 000000, 011001
+		DIV, 	// 000000, 011010
+		DIVU, 	// 000000, 011011
+		AND, 	// 000000, 100100
+		ANDI, 	// 001100
+		OR, 	// 000000, 100101
+		ORI, 	// 001101
+		XOR, 	// 000000, 100110
+		XORI, 	// 001110
+		NOR, 	// 000000, 100111
+		SLT, 	// 000000, 101010
+		SLTI, 	// 001010
+		SLL, 	// 000000, 000000
+		SRL, 	// 000000, 000010
+		SRA		// 000000, 000011
+	};
+
+	enum LS{
+		LW, 	// 100011
+		LB, 	// 100000
+		LH, 	// 100001
+		LUI, 	// 001111
+		SW, 	// 101011
+		SB, 	// 101000
+		SH, 	// 101001
+		MFHI, 	// 000000, 010000
+		MFLO, 	// 000000, 010010
+		MTHI, 	// 000000, 010001
+		MTLO	// 000000, 010011
+	};
+
+	enum CF{
+		BEQ, 	// 000100
+		BNE, 	// 000101
+		BLEZ, 	// 000110, XXXXX, 00000
+		BLTZ, 	// 000001, XXXXX, 00000
+		BGEZ, 	// 000001, XXXXX, 00001
+		BGTZ, 	// 000111, XXXXX, 00000
+		J, 		// 000010
+		JR, 	// 000000, 001000
+		JAL, 	// 000011
+		JALR	// 000000, 001001
+	};
+
+	char* binAddr = HexToBin(addr);
+	char* firstSix;
+	strncpy(firstSix, binAddr, 6);
+	printf("\n string received %s\n", firstSix);
+
+	// switch (addr)
+	// {
+	// case /* constant-expression */:
+	// 	/* code */
+	// 	break;
+	
+	// default:
+	// 	break;
+	// }
+
+
+	printf("\nAddress Hex %d\n", addr);
 	// DO THIS ALSO
 }
+
+
 
 /***************************************************************/
 /* main                                                                                                                                   */
