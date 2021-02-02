@@ -497,7 +497,9 @@ void print_instruction(uint32_t addr){
 		JALR	// 000000, 001001
 	};
 
-	char* binAddr = HexToBin(addr);
+	char textToWrite[8];
+	sprintf(textToWrite, "%lu", addr);
+	char* binAddr = HexToBin(textToWrite);
 	char* firstSix;
 	strncpy(firstSix, binAddr, 6);
 	printf("\n string received %s\n", firstSix);
