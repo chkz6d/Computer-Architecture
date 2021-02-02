@@ -427,14 +427,21 @@ void print_instruction(uint32_t addr){
 	};
 
 	uint32_t readAddr = mem_read_32(addr);
-	uint32_t mask = 0xFC000000;
-	uint32_t r1Mask = 0x03E00000 >> 21;
-	uint32_t r2Mask = 0x001F0000 >> 16;
-	uint32_t lastMask = 0x00000006;
-	uint32_t firstNums = readAddr & mask;
-	uint32_t r1Nums = readAddr & r1Mask;
-	uint32_t r2Nums = readAddr & r2Mask;
+	uint32_t mask = 0xFC000000; // 28
+	uint32_t r1Mask = 0x03E00000; // 21
+	uint32_t r2Mask = 0x001F0000; // 16
+	uint32_t lastMask = 0x0000003F;
+	uint32_t firstNums = (readAddr & mask) >> 26;
+	uint32_t r1Nums = (readAddr & r1Mask)  >> 21;
+	uint32_t r2Nums = (readAddr & r2Mask)  >> 16;
 	uint32_t lastNums = readAddr & lastMask;
+
+	printf("\nInstruction: [0x%x]\n", readAddr);
+	printf("First Nums: [0x%.2x]\n", firstNums);
+	printf("R1 Nums: [0x%x]\n", r1Nums);
+	printf("R2 Nums: [0x%x]\n", r2Nums);
+	printf("Last Nums: [0x%x]\n", lastNums);
+
 
 	switch (firstNums)
 	{
@@ -442,155 +449,159 @@ void print_instruction(uint32_t addr){
 	case 000000:
 		switch (lastNums)
 		{
-		case 100000:
+		case 0b100000:
 			printf("ADD\n");
 			break;
-		case 100001:
+		case 0b100001:
 			printf("ADDU\n");
 			break;
-		case 100010:
+		case 0b100010:
 			printf("SUB\n");
 			break;
-		case 100011:
+		case 0b100011:
 			printf("SUBU\n");
 			break;
-		case 011000:
+		case 0b011000:
 			printf("MULT\n");
 			break;
-		case 011001:
+		case 0b011001:
 			printf("MULTU\n");
 			break;
-		case 011010:
+		case 0b011010:
 			printf("DIV\n");
 			break;
-		case 011011:
+		case 0b011011:
 			printf("DIVU\n");
 			break;
-		case 100100:
+		case 0b100100:
 			printf("AND\n");
 			break;
-		case 100101:
+		case 0b100101:
 			printf("OR\n");
 			break;
-		case 100110:
+		case 0b100110:
 			printf("XOR\n");
 			break;
-		case 100111:
+		case 0b100111:
 			printf("NOR\n");
 			break;
-		case 101010:
+		case 0b101010:
 			printf("SLT\n");
 			break;
-		case 000000:
+		case 0b000000:
 			printf("SLL\n");
 			break;
-		case 000010:
+		case 0b000010:
 			printf("SRL\n");
 			break;
-		case 000011:
+		case 0b000011:
 			printf("SRA\n");
 			break;
-		case 010000:
+		case 0b010000:
 			printf("MFHI\n");
 			break;
-		case 010010:
+		case 0b010010:
 			printf("MFLO\n");
 			break;
-		case 010001:
+		case 0b010001:
 			printf("MDHI\n");
 			break;
-		case 010011:
+		case 0b010011:
 			printf("MDLO\n");
 			break;
-		case 001000:
+		case 0b001000:
 			printf("JR\n");
 			break;
-		case 001001:
+		case 0b001001:
 			printf("JALR\n");
 			break;
-		case 001100:
+		case 0b001100:
 			printf("SYSCALL\n");
+			exit(0);
+		default:
+			printf("No Special Instruction Found\n");
 			break;
 		}
 		break;
 	
 	// Register case code
-	case 000110:
+	case 0b000110:
 		printf("BLEZ\n");
 		break;
-	case 000001:
+	case 0b000001:
 		switch (r2Nums){
-		case 00000:
+		case 0b00000:
 			printf("BLTZ\n");
 			break;
-		case 00001:
+		case 0b00001:
 			printf("BGEZ\n");
 			break;
-		}
-		break;
-	case 000111:
+		default:
+			printf("No Register Type Instruction Found\n");
+			break;
+	}
+	case 0b000111:
 		printf("BGTZ\n");
 		break;
 
 	// Normal case code
-	case 001000:
+	case 0b001000:
 		printf("ADDI\n");
 		break;
-	case 001001:
+	case 0b001001:
 		printf("ADDIU\n");
 		break;
-	case 001100:
+	case 0b001100:
 		printf("ANDI\n");
 		break;
-	case 001101:
+	case 0b001101:
 		printf("ORI\n");
 		break;
-	case 001110:
+	case 0b001110:
 		printf("XORI\n");
 		break;
-	case 001010:
+	case 0b001010:
 		printf("SLTI\n");
 		break;
-	case 100011:
+	case 0b100011:
 		printf("LW\n");
 		break;
-	case 100000:
+	case 0b100000:
 		printf("LB\n");
 		break;
-	case 100001:
+	case 0b100001:
 		printf("LH\n");
 		break;
-	case 001111:
+	case 0b001111:
 		printf("LUI\n");
 		break;
-	case 101011:
+	case 0b101011:
 		printf("SW\n");
 		break;
-	case 101000:
+	case 0b101000:
 		printf("SB\n");
 		break;
-	case 101001:
+	case 0b101001:
 		printf("SH\n");
 		break;
-	case 000100:
+	case 0b000100:
 		printf("BEQ\n");
 		break;
-	case 000101:
+	case 0b000101:
 		printf("BNE\n");
 		break;
-	case 000010:
+	case 0b000010:
 		printf("J\n");
 		break;
-	case 000011:
+	case 0b000011:
 		printf("JAL\n");
 		break;
 	
 	default:
+		printf("No Normal Type Instruction Found\n");
 		break;
 	}
-
-
-	printf("\nAddress Hex %d\n", addr);
+	printf("\n");
 }
 
 
