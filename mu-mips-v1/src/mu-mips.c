@@ -306,11 +306,187 @@ void load_program() {
 void handle_instruction()
 {
 	/*IMPLEMENT THIS*/
+	uint32_t addr = CURRENT_STATE.PC;
+	printf("[0x%x]\t", addr);
+	uint32_t readAddr = mem_read_32(addr);
+	uint32_t mask = 0xFC000000; // 28
+	uint32_t r1Mask = 0x03E00000; // 21
+	uint32_t r2Mask = 0x001F0000; // 16
+	uint32_t lastMask = 0x0000003F;
+	uint32_t firstNums = (readAddr & mask) >> 26;
+	uint32_t r1Nums = (readAddr & r1Mask)  >> 21;
+	uint32_t r2Nums = (readAddr & r2Mask)  >> 16;
+	uint32_t lastNums = readAddr & lastMask;
+
+	printf("\nInstruction: [0x%x]\n", readAddr);
+	printf("First Nums: [0x%.2x]\n", firstNums);
+	printf("R1 Nums: [0x%x]\n", r1Nums);
+	printf("R2 Nums: [0x%x]\n", r2Nums);
+	printf("Last Nums: [0x%x]\n", lastNums);
+
 
 	// Local Variables
-	// uint32_t PC = CURRENT_STATE.PC; // Program counter has the 32 bit instruction
-	// int firstSix = PC;
+	// CURRENT_STATE.REGS[0] = 5; // Example of how to put the operations in here
 
+	// switch (firstNums)
+	// {
+	// // Special case code
+	// case 000000:
+	// 	switch (lastNums)
+	// 	{
+	// 	case 0b100000:
+	// 		printf("ADD\n");
+	// 		break;
+	// 	case 0b100001:
+	// 		printf("ADDU\n");
+	// 		break;
+	// 	case 0b100010:
+	// 		printf("SUB\n");
+	// 		break;
+	// 	case 0b100011:
+	// 		printf("SUBU\n");
+	// 		break;
+	// 	case 0b011000:
+	// 		printf("MULT\n");
+	// 		break;
+	// 	case 0b011001:
+	// 		printf("MULTU\n");
+	// 		break;
+	// 	case 0b011010:
+	// 		printf("DIV\n");
+	// 		break;
+	// 	case 0b011011:
+	// 		printf("DIVU\n");
+	// 		break;
+	// 	case 0b100100:
+	// 		printf("AND\n");
+	// 		break;
+	// 	case 0b100101:
+	// 		printf("OR\n");
+	// 		break;
+	// 	case 0b100110:
+	// 		printf("XOR\n");
+	// 		break;
+	// 	case 0b100111:
+	// 		printf("NOR\n");
+	// 		break;
+	// 	case 0b101010:
+	// 		printf("SLT\n");
+	// 		break;
+	// 	case 0b000000:
+	// 		printf("SLL\n");
+	// 		break;
+	// 	case 0b000010:
+	// 		printf("SRL\n");
+	// 		break;
+	// 	case 0b000011:
+	// 		printf("SRA\n");
+	// 		break;
+	// 	case 0b010000:
+	// 		printf("MFHI\n");
+	// 		break;
+	// 	case 0b010010:
+	// 		printf("MFLO\n");
+	// 		break;
+	// 	case 0b010001:
+	// 		printf("MDHI\n");
+	// 		break;
+	// 	case 0b010011:
+	// 		printf("MDLO\n");
+	// 		break;
+	// 	case 0b001000:
+	// 		printf("JR\n");
+	// 		break;
+	// 	case 0b001001:
+	// 		printf("JALR\n");
+	// 		break;
+	// 	case 0b001100:
+	// 		printf("SYSCALL\n");
+	// 		exit(0);
+	// 	default:
+	// 		printf("No Special Instruction Found\n");
+	// 		break;
+	// 	}
+	// 	break;
+	
+	// // Register case code
+	// case 0b000110:
+	// 	printf("BLEZ\n");
+	// 	break;
+	// case 0b000001:
+	// 	switch (r2Nums){
+	// 	case 0b00000:
+	// 		printf("BLTZ\n");
+	// 		break;
+	// 	case 0b00001:
+	// 		printf("BGEZ\n");
+	// 		break;
+	// 	default:
+	// 		printf("No Register Type Instruction Found\n");
+	// 		break;
+	// }
+	// case 0b000111:
+	// 	printf("BGTZ\n");
+	// 	break;
+
+	// // Normal case code
+	// case 0b001000:
+	// 	printf("ADDI\n");
+	// 	break;
+	// case 0b001001:
+	// 	printf("ADDIU\n");
+	// 	break;
+	// case 0b001100:
+	// 	printf("ANDI\n");
+	// 	break;
+	// case 0b001101:
+	// 	printf("ORI\n");
+	// 	break;
+	// case 0b001110:
+	// 	printf("XORI\n");
+	// 	break;
+	// case 0b001010:
+	// 	printf("SLTI\n");
+	// 	break;
+	// case 0b100011:
+	// 	printf("LW\n");
+	// 	break;
+	// case 0b100000:
+	// 	printf("LB\n");
+	// 	break;
+	// case 0b100001:
+	// 	printf("LH\n");
+	// 	break;
+	// case 0b001111:
+	// 	printf("LUI\n");
+	// 	break;
+	// case 0b101011:
+	// 	printf("SW\n");
+	// 	break;
+	// case 0b101000:
+	// 	printf("SB\n");
+	// 	break;
+	// case 0b101001:
+	// 	printf("SH\n");
+	// 	break;
+	// case 0b000100:
+	// 	printf("BEQ\n");
+	// 	break;
+	// case 0b000101:
+	// 	printf("BNE\n");
+	// 	break;
+	// case 0b000010:
+	// 	printf("J\n");
+	// 	break;
+	// case 0b000011:
+	// 	printf("JAL\n");
+	// 	break;
+	
+	// default:
+	// 	printf("No Normal Type Instruction Found\n");
+	// 	break;
+	// }
+	printf("\n");
 
 	// NEED TO DO THIS
 	// PSUEDOCODE
@@ -330,6 +506,8 @@ void handle_instruction()
 	// J TYPE
 
 	/* execute one instruction at a time. Use/update CURRENT_STATE and and NEXT_STATE, as necessary.*/
+	// NOT SURE HOW TO UPDATE CURRENT_STATE AND NEXT_STATE (8 bits from the next?)
+	// Need to set up debugging here
 }
 
 
