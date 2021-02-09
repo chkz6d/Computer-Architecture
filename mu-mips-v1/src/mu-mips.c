@@ -434,11 +434,9 @@ void handle_instruction()
 			printf("MDLO\n");
 			break;
 		case 0b001000:
-			// COME BACK
 			printf("JR: Jump to %lu\n", rs);
 			break;
 		case 0b001001:
-			// COME BACK
 			printf("JALR: Jump to %lu with delay 1\n", rs);
 			break;
 		case 0b001100:
@@ -470,46 +468,74 @@ void handle_instruction()
 			}
 			break;
 		case 0b00001:
-			printf("BGEZ\n");
+			if(rs >= 0){
+				printf("BGEZ: Branch to %lu + \n", addr, immediate);
+			}
+			else{
+				printf("BGEZ: No branch\n");
+			}
 			break;
 		default:
 			printf("No Register Type Instruction Found\n");
 			break;
 	}
 	case 0b000111:
-		printf("BGTZ\n");
+		if(rs > 0){
+			printf("BGTZ: Branch to %lu + \n", addr, immediate);
+		}
+		else{
+			printf("BGTZ: No branch\n");
+		}
 		break;
 
 	// Normal case code
 	case 0b001000:
-		printf("ADDI\n");
+		rt = rs + immediate;
+		printf("ADDI: %lu = %lu + %lu\n", rt, rs, immediate);
 		break;
 	case 0b001001:
-		printf("ADDIU\n");
+		rt = rs + immediate;
+		printf("ADDIU: %lu = %lu + %lu\n", rt, rs, immediate);
 		break;
 	case 0b001100:
-		printf("ANDI\n");
+		rt = rs & immediate;
+		printf("ANDI: %lu = %lu & %lu\n", rt, rs, immediate);
 		break;
 	case 0b001101:
-		printf("ORI\n");
+		rt = rs || immediate;
+		printf("ORI: %lu = %lu || %lu\n", rt, rs, immediate);
 		break;
 	case 0b001110:
-		printf("XORI\n");
+		rt = rs ^ immediate;
+		printf("XORI: %lu = %lu ^ %lu\n", rd, rs, immediate);
 		break;
 	case 0b001010:
-		printf("SLTI\n");
+		if( rs < immediate ){
+			rt = 1;
+		}
+		else{
+			rt = 0;
+		}
+		printf("SLTI: %lu\n", rt);
 		break;
 	case 0b100011:
-		printf("LW\n");
+		// Do this for 32 bits
+		rt = mem_read_32(immediate);
+		printf("LW: %ls\n", rt);
 		break;
 	case 0b100000:
-		printf("LB\n");
+		// Do this for 4 bits
+		rt = mem_read_32(immediate);
+		printf("LB: %ls\n", rt);
 		break;
 	case 0b100001:
-		printf("LH\n");
+		// Do this for 16 bits
+		rt = mem_read_32(immediate);
+		printf("LH: %ls\n", rt);
 		break;
 	case 0b001111:
-		printf("LUI\n");
+		rt = mem_read_32(immediate) << 16;
+		printf("LUI: %ls\n", rt);
 		break;
 	case 0b101011:
 		printf("SW\n");
