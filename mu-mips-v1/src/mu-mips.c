@@ -319,14 +319,16 @@ void handle_instruction()
 	uint32_t saMask = 0x000007C0; // 11
 	uint32_t immediateMask = 0x0000FFFF; // 11
 	uint32_t lastMask = 0x0000003F;
+	uint32_t targetMask = 0x03FFFFFF;
 	uint32_t firstNums = (readAddr & mask) >> 26;
 	uint32_t rs = (readAddr & rsMask)  >> 21;
 	uint32_t rt = (readAddr & rtMask)  >> 16;
 	uint32_t rd = (readAddr & rdMask)  >> 11;
 	uint32_t sa = (readAddr & saMask)  >> 6;
 	uint32_t immediate = (readAddr & immediateMask)  >> 16;
+	uint32_t target = readAddr & targetMask;
 	uint32_t lastNums = readAddr & lastMask;
-	uint32_t result;
+	uint32_t result, base;
 
 	// printf("\nInstruction: [0x%x]\n", readAddr);
 	// printf("First Nums: [0x%.2x]\n", firstNums);
@@ -337,6 +339,7 @@ void handle_instruction()
 	// printf("rd: [0x%x]\n", rd);
 	// printf("sa: [0x%x]\n", sa);
 	// printf("immediate: [0x%x]\n", immediate);
+	// printf("target: [0x%x]\n", target);
 
 
 	// Local Variables
@@ -512,24 +515,41 @@ void handle_instruction()
 		printf("LUI\n");
 		break;
 	case 0b101011:
+		base = rt;
 		printf("SW\n");
 		break;
 	case 0b101000:
+		// COME BACK
+		base = rt;
 		printf("SB\n");
 		break;
 	case 0b101001:
+		// COME BACK
+		base = rt;
 		printf("SH\n");
 		break;
 	case 0b000100:
+		// COME BACK
+		if(rs = rt){
+			printf("BNE: Branch to %lu + \n", rs, rt);
+		}
 		printf("BEQ\n");
 		break;
 	case 0b000101:
+		// COME BACK
+		if(rs != rt){
+			printf("BNE: Branch to %lu + \n", rs, rt);
+		}
 		printf("BNE\n");
 		break;
 	case 0b000010:
+		// COME BACK
+		printf("J: Jump to %lu\n", target);
 		printf("J\n");
 		break;
 	case 0b000011:
+		// COME BACK
+		printf("JAL: Jump to %lu and link\n", target);
 		printf("JAL\n");
 		break;
 	
