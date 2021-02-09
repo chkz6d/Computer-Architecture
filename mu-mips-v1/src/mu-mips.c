@@ -319,14 +319,16 @@ void handle_instruction()
 	uint32_t saMask = 0x000007C0; // 11
 	uint32_t immediateMask = 0x0000FFFF; // 11
 	uint32_t lastMask = 0x0000003F;
+	uint32_t targetMask = 0x03FFFFFF;
 	uint32_t firstNums = (readAddr & mask) >> 26;
 	uint32_t rs = (readAddr & rsMask)  >> 21;
 	uint32_t rt = (readAddr & rtMask)  >> 16;
 	uint32_t rd = (readAddr & rdMask)  >> 11;
 	uint32_t sa = (readAddr & saMask)  >> 6;
 	uint32_t immediate = (readAddr & immediateMask)  >> 16;
+	uint32_t target = readAddr & targetMask;
 	uint32_t lastNums = readAddr & lastMask;
-	uint32_t result;
+	uint32_t result, base;
 
 	// printf("\nInstruction: [0x%x]\n", readAddr);
 	// printf("First Nums: [0x%.2x]\n", firstNums);
@@ -470,66 +472,111 @@ void handle_instruction()
 			}
 			break;
 		case 0b00001:
-			printf("BGEZ\n");
+			if(rs >= 0){
+				printf("BGEZ: Branch to %lu + \n", addr, immediate);
+			}
+			else{
+				printf("BGEZ: No branch\n");
+			}
 			break;
 		default:
 			printf("No Register Type Instruction Found\n");
 			break;
 	}
 	case 0b000111:
-		printf("BGTZ\n");
+		if(rs > 0){
+			printf("BGTZ: Branch to %lu + \n", addr, immediate);
+		}
+		else{
+			printf("BGTZ: No branch\n");
+		}
 		break;
 
 	// Normal case code
 	case 0b001000:
-		printf("ADDI\n");
+		rt = rs + immediate;
+		printf("ADDI: %lu = %lu + %lu\n", rt, rs, immediate);
 		break;
 	case 0b001001:
-		printf("ADDIU\n");
+		rt = rs + immediate;
+		printf("ADDIU: %lu = %lu + %lu\n", rt, rs, immediate);
 		break;
 	case 0b001100:
-		printf("ANDI\n");
+		rt = rs & immediate;
+		printf("ANDI: %lu = %lu & %lu\n", rt, rs, immediate);
 		break;
 	case 0b001101:
-		printf("ORI\n");
+		rt = rs || immediate;
+		printf("ORI: %lu = %lu || %lu\n", rt, rs, immediate);
 		break;
 	case 0b001110:
-		printf("XORI\n");
+		rt = rs ^ immediate;
+		printf("XORI: %lu = %lu ^ %lu\n", rd, rs, immediate);
 		break;
 	case 0b001010:
-		printf("SLTI\n");
+		if( rs < immediate ){
+			rt = 1;
+		}
+		else{
+			rt = 0;
+		}
+		printf("SLTI: %lu\n", rt);
 		break;
 	case 0b100011:
-		printf("LW\n");
+		// Do this for 32 bits
+		rt = mem_read_32(immediate);
+		printf("LW: %ls\n", rt);
 		break;
 	case 0b100000:
-		printf("LB\n");
+		// Do this for 4 bits
+		rt = mem_read_32(immediate);
+		printf("LB: %ls\n", rt);
 		break;
 	case 0b100001:
-		printf("LH\n");
+		// Do this for 16 bits
+		rt = mem_read_32(immediate);
+		printf("LH: %ls\n", rt);
 		break;
 	case 0b001111:
-		printf("LUI\n");
+		rt = mem_read_32(immediate) << 16;
+		printf("LUI: %ls\n", rt);
 		break;
 	case 0b101011:
+		base = rt;
 		printf("SW\n");
 		break;
 	case 0b101000:
+		// COME BACK
+		base = rt;
 		printf("SB\n");
 		break;
 	case 0b101001:
+		// COME BACK
+		base = rt;
 		printf("SH\n");
 		break;
 	case 0b000100:
+		// COME BACK
+		if(rs = rt){
+			printf("BNE: Branch to %lu + \n", rs, rt);
+		}
 		printf("BEQ\n");
 		break;
 	case 0b000101:
+		// COME BACK
+		if(rs != rt){
+			printf("BNE: Branch to %lu + \n", rs, rt);
+		}
 		printf("BNE\n");
 		break;
 	case 0b000010:
+		// COME BACK
+		printf("J: Jump to %lu\n", target);
 		printf("J\n");
 		break;
 	case 0b000011:
+		// COME BACK
+		printf("JAL: Jump to %lu and link\n", target);
 		printf("JAL\n");
 		break;
 	
