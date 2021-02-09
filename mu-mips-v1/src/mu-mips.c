@@ -3,8 +3,11 @@
 #include <string.h>
 #include <stdint.h>
 #include <assert.h>
-
 #include "mu-mips.h"
+
+// Globals
+int instructionNum = 0;
+uint32_t baseInstruction = MEM_TEXT_BEGIN;
 
 /***************************************************************/
 /* Print out a list of commands available                                                                  */
@@ -306,208 +309,237 @@ void load_program() {
 void handle_instruction()
 {
 	/*IMPLEMENT THIS*/
-	uint32_t addr = CURRENT_STATE.PC;
+	uint32_t addr = baseInstruction + (instructionNum * 4);
 	printf("[0x%x]\t", addr);
 	uint32_t readAddr = mem_read_32(addr);
 	uint32_t mask = 0xFC000000; // 28
-	uint32_t r1Mask = 0x03E00000; // 21
-	uint32_t r2Mask = 0x001F0000; // 16
+	uint32_t rsMask = 0x03E00000; // 21
+	uint32_t rtMask = 0x001F0000; // 16
+	uint32_t rdMask = 0x0000F800; // 11
+	uint32_t saMask = 0x000007C0; // 11
+	uint32_t immediateMask = 0x0000FFFF; // 11
 	uint32_t lastMask = 0x0000003F;
 	uint32_t firstNums = (readAddr & mask) >> 26;
-	uint32_t r1Nums = (readAddr & r1Mask)  >> 21;
-	uint32_t r2Nums = (readAddr & r2Mask)  >> 16;
+	uint32_t rs = (readAddr & rsMask)  >> 21;
+	uint32_t rt = (readAddr & rtMask)  >> 16;
+	uint32_t rd = (readAddr & rdMask)  >> 11;
+	uint32_t sa = (readAddr & saMask)  >> 6;
+	uint32_t immediate = (readAddr & immediateMask)  >> 16;
 	uint32_t lastNums = readAddr & lastMask;
+	uint32_t result;
 
-	printf("\nInstruction: [0x%x]\n", readAddr);
-	printf("First Nums: [0x%.2x]\n", firstNums);
-	printf("R1 Nums: [0x%x]\n", r1Nums);
-	printf("R2 Nums: [0x%x]\n", r2Nums);
-	printf("Last Nums: [0x%x]\n", lastNums);
+	// printf("\nInstruction: [0x%x]\n", readAddr);
+	// printf("First Nums: [0x%.2x]\n", firstNums);
+	// printf("R1 Nums: [0x%x]\n", rs);
+	// printf("R2 Nums: [0x%x]\n", rt);
+	// printf("Last Nums: [0x%x]\n", lastNums);
+	// printf("rdMask: [0x%x]\n", rdMask);
+	// printf("rd: [0x%x]\n", rd);
+	// printf("sa: [0x%x]\n", sa);
+	// printf("immediate: [0x%x]\n", immediate);
 
 
 	// Local Variables
 	// CURRENT_STATE.REGS[0] = 5; // Example of how to put the operations in here
 
-	// switch (firstNums)
-	// {
-	// // Special case code
-	// case 000000:
-	// 	switch (lastNums)
-	// 	{
-	// 	case 0b100000:
-	// 		printf("ADD\n");
-	// 		break;
-	// 	case 0b100001:
-	// 		printf("ADDU\n");
-	// 		break;
-	// 	case 0b100010:
-	// 		printf("SUB\n");
-	// 		break;
-	// 	case 0b100011:
-	// 		printf("SUBU\n");
-	// 		break;
-	// 	case 0b011000:
-	// 		printf("MULT\n");
-	// 		break;
-	// 	case 0b011001:
-	// 		printf("MULTU\n");
-	// 		break;
-	// 	case 0b011010:
-	// 		printf("DIV\n");
-	// 		break;
-	// 	case 0b011011:
-	// 		printf("DIVU\n");
-	// 		break;
-	// 	case 0b100100:
-	// 		printf("AND\n");
-	// 		break;
-	// 	case 0b100101:
-	// 		printf("OR\n");
-	// 		break;
-	// 	case 0b100110:
-	// 		printf("XOR\n");
-	// 		break;
-	// 	case 0b100111:
-	// 		printf("NOR\n");
-	// 		break;
-	// 	case 0b101010:
-	// 		printf("SLT\n");
-	// 		break;
-	// 	case 0b000000:
-	// 		printf("SLL\n");
-	// 		break;
-	// 	case 0b000010:
-	// 		printf("SRL\n");
-	// 		break;
-	// 	case 0b000011:
-	// 		printf("SRA\n");
-	// 		break;
-	// 	case 0b010000:
-	// 		printf("MFHI\n");
-	// 		break;
-	// 	case 0b010010:
-	// 		printf("MFLO\n");
-	// 		break;
-	// 	case 0b010001:
-	// 		printf("MDHI\n");
-	// 		break;
-	// 	case 0b010011:
-	// 		printf("MDLO\n");
-	// 		break;
-	// 	case 0b001000:
-	// 		printf("JR\n");
-	// 		break;
-	// 	case 0b001001:
-	// 		printf("JALR\n");
-	// 		break;
-	// 	case 0b001100:
-	// 		printf("SYSCALL\n");
-	// 		exit(0);
-	// 	default:
-	// 		printf("No Special Instruction Found\n");
-	// 		break;
-	// 	}
-	// 	break;
+	switch (firstNums)
+	{
+	// Special case code
+	case 0b000000:
+		switch (lastNums)
+		{
+		case 0b100000:
+			rd = rs + rt;
+			printf("ADD: %lu = %lu + %lu\n", rd, rs, rt);
+			break;
+		case 0b100001:
+			rd = rs + rt;
+			printf("ADDU: %lu = %lu + %lu\n", rd, rs, rt);
+			break;
+		case 0b100010:
+			rd = rs - rt;
+			printf("SUB: %lu = %lu - %lu\n", rd, rs, rt);
+			break;
+		case 0b100011:
+			rd = rs - rt;
+			printf("SUBU: %lu = %lu - %lu\n", rd, rs, rt);
+			break;
+		case 0b011000:
+			result = rs * rt;
+			printf("MULT: %lu = %lu * %lu\n", result, rs, rt);
+			break;
+		case 0b011001:
+			result = rs * rt;
+			printf("MULTU: %lu = %lu * %lu\n", result, rs, rt);
+			break;
+		case 0b011010:
+			result = rs / rt;
+			printf("DIV: %lu = %lu / %lu\n", result, rs, rt);
+			break;
+		case 0b011011:
+			result = rs / rt;
+			printf("DIVU: %lu = %lu / %lu\n", result, rs, rt);
+			break;
+		case 0b100100:
+			rd = rs & rt;
+			printf("AND: %lu = %lu & %lu\n", rd, rs, rt);
+			break;
+		case 0b100101:
+			rd = rs || rt;
+			printf("OR: %lu = %lu || %lu\n", rd, rs, rt);
+			break;
+		case 0b100110:
+			rd = rs ^ rt;
+			printf("XOR: %lu = %lu ^ %lu\n", rd, rs, rt);
+			break;
+		case 0b100111:
+			rd = !(rs || rt);
+			printf("NOR: %lu = !(%lu || %lu)\n", rd, rs, rt);
+			break;
+		case 0b101010:
+			if( rs < rt ){
+				rd = 1;
+			}
+			else{
+				rd = 0;
+			}
+			printf("SLT: %lu\n", rd);
+			break;
+		case 0b000000:
+			rd = rt << sa;
+			printf("SLL: %lu = %lu << %lu\n", rd, rt, sa);
+			break;
+		case 0b000010:
+			rd = rt >> sa;
+			printf("SRL: %lu = %lu >> %lu\n", rd, rt, sa);
+			break;
+		case 0b000011:
+			rd = rt >> sa;
+			printf("SRA: %lu = %lu >> %lu\n", rd, rt, sa);
+			break;
+		case 0b010000:
+			rd = CURRENT_STATE.HI;
+			printf("MFHI: %lu = %lu\n", rd, CURRENT_STATE.HI);
+			break;
+		case 0b010010:
+			rd = CURRENT_STATE.LO;
+			printf("MFLO: %lu = %lu\n", rd, CURRENT_STATE.LO);
+			break;
+		case 0b010001:
+			// COME BACK
+			printf("MDHI\n");
+			break;
+		case 0b010011:
+			// COME BACK
+			printf("MDLO\n");
+			break;
+		case 0b001000:
+			// COME BACK
+			printf("JR: Jump to %lu\n", rs);
+			break;
+		case 0b001001:
+			// COME BACK
+			printf("JALR: Jump to %lu with delay 1\n", rs);
+			break;
+		case 0b001100:
+			printf("SYSCALL: Throw System Call excepetion\n");
+			exit(0);
+		default:
+			printf("No Special Instruction Found\n");
+			break;
+		}
+		break;
 	
-	// // Register case code
-	// case 0b000110:
-	// 	printf("BLEZ\n");
-	// 	break;
-	// case 0b000001:
-	// 	switch (r2Nums){
-	// 	case 0b00000:
-	// 		printf("BLTZ\n");
-	// 		break;
-	// 	case 0b00001:
-	// 		printf("BGEZ\n");
-	// 		break;
-	// 	default:
-	// 		printf("No Register Type Instruction Found\n");
-	// 		break;
-	// }
-	// case 0b000111:
-	// 	printf("BGTZ\n");
-	// 	break;
+	// Register case code
+	case 0b000110:
+		if(rs <= 0){
+			printf("BLEZ: Branch to %lu + \n", addr, immediate);
+		}
+		else{
+			printf("BLEZ: No branch\n", rs);
+		}
+		break;
+	case 0b000001:
+		switch (rt){
+		case 0b00000:
+			if(rs < 0){
+				printf("BLTZ: Branch to %lu + \n", addr, immediate);
+			}
+			else{
+				printf("BLTZ: No branch\n");
+			}
+			break;
+		case 0b00001:
+			printf("BGEZ\n");
+			break;
+		default:
+			printf("No Register Type Instruction Found\n");
+			break;
+	}
+	case 0b000111:
+		printf("BGTZ\n");
+		break;
 
-	// // Normal case code
-	// case 0b001000:
-	// 	printf("ADDI\n");
-	// 	break;
-	// case 0b001001:
-	// 	printf("ADDIU\n");
-	// 	break;
-	// case 0b001100:
-	// 	printf("ANDI\n");
-	// 	break;
-	// case 0b001101:
-	// 	printf("ORI\n");
-	// 	break;
-	// case 0b001110:
-	// 	printf("XORI\n");
-	// 	break;
-	// case 0b001010:
-	// 	printf("SLTI\n");
-	// 	break;
-	// case 0b100011:
-	// 	printf("LW\n");
-	// 	break;
-	// case 0b100000:
-	// 	printf("LB\n");
-	// 	break;
-	// case 0b100001:
-	// 	printf("LH\n");
-	// 	break;
-	// case 0b001111:
-	// 	printf("LUI\n");
-	// 	break;
-	// case 0b101011:
-	// 	printf("SW\n");
-	// 	break;
-	// case 0b101000:
-	// 	printf("SB\n");
-	// 	break;
-	// case 0b101001:
-	// 	printf("SH\n");
-	// 	break;
-	// case 0b000100:
-	// 	printf("BEQ\n");
-	// 	break;
-	// case 0b000101:
-	// 	printf("BNE\n");
-	// 	break;
-	// case 0b000010:
-	// 	printf("J\n");
-	// 	break;
-	// case 0b000011:
-	// 	printf("JAL\n");
-	// 	break;
+	// Normal case code
+	case 0b001000:
+		printf("ADDI\n");
+		break;
+	case 0b001001:
+		printf("ADDIU\n");
+		break;
+	case 0b001100:
+		printf("ANDI\n");
+		break;
+	case 0b001101:
+		printf("ORI\n");
+		break;
+	case 0b001110:
+		printf("XORI\n");
+		break;
+	case 0b001010:
+		printf("SLTI\n");
+		break;
+	case 0b100011:
+		printf("LW\n");
+		break;
+	case 0b100000:
+		printf("LB\n");
+		break;
+	case 0b100001:
+		printf("LH\n");
+		break;
+	case 0b001111:
+		printf("LUI\n");
+		break;
+	case 0b101011:
+		printf("SW\n");
+		break;
+	case 0b101000:
+		printf("SB\n");
+		break;
+	case 0b101001:
+		printf("SH\n");
+		break;
+	case 0b000100:
+		printf("BEQ\n");
+		break;
+	case 0b000101:
+		printf("BNE\n");
+		break;
+	case 0b000010:
+		printf("J\n");
+		break;
+	case 0b000011:
+		printf("JAL\n");
+		break;
 	
-	// default:
-	// 	printf("No Normal Type Instruction Found\n");
-	// 	break;
-	// }
+	default:
+		printf("No Normal Type Instruction Found\n");
+		break;
+	}
 	printf("\n");
 
-	// NEED TO DO THIS
-	// PSUEDOCODE
-	// switch(){
-	// 	case I:
-
-	// 	case R:
-
-	// 	case J:
-
-	// }
-
-	// R TYPE
-
-	// I TYPE
-
-	// J TYPE
-
-	/* execute one instruction at a time. Use/update CURRENT_STATE and and NEXT_STATE, as necessary.*/
-	// NOT SURE HOW TO UPDATE CURRENT_STATE AND NEXT_STATE (8 bits from the next?)
-	// Need to set up debugging here
+	instructionNum += 1;
 }
 
 
@@ -624,7 +656,7 @@ void print_instruction(uint32_t addr){
 	switch (firstNums)
 	{
 	// Special case code
-	case 000000:
+	case 0b000000:
 		switch (lastNums)
 		{
 		case 0b100000:
