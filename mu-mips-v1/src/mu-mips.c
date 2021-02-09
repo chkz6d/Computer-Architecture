@@ -428,19 +428,15 @@ void handle_instruction()
 			printf("MFLO: %lu = %lu\n", rd, CURRENT_STATE.LO);
 			break;
 		case 0b010001:
-			// COME BACK
 			printf("MDHI\n");
 			break;
 		case 0b010011:
-			// COME BACK
 			printf("MDLO\n");
 			break;
 		case 0b001000:
-			// COME BACK
 			printf("JR: Jump to %lu\n", rs);
 			break;
 		case 0b001001:
-			// COME BACK
 			printf("JALR: Jump to %lu with delay 1\n", rs);
 			break;
 		case 0b001100:
@@ -546,36 +542,30 @@ void handle_instruction()
 		printf("SW\n");
 		break;
 	case 0b101000:
-		// COME BACK
 		base = rt;
 		printf("SB\n");
 		break;
 	case 0b101001:
-		// COME BACK
 		base = rt;
 		printf("SH\n");
 		break;
 	case 0b000100:
-		// COME BACK
 		if(rs = rt){
 			printf("BNE: Branch to %lu + \n", rs, rt);
 		}
 		printf("BEQ\n");
 		break;
 	case 0b000101:
-		// COME BACK
 		if(rs != rt){
 			printf("BNE: Branch to %lu + \n", rs, rt);
 		}
 		printf("BNE\n");
 		break;
 	case 0b000010:
-		// COME BACK
 		printf("J: Jump to %lu\n", target);
 		printf("J\n");
 		break;
 	case 0b000011:
-		// COME BACK
 		printf("JAL: Jump to %lu and link\n", target);
 		printf("JAL\n");
 		break;
