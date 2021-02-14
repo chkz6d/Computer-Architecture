@@ -341,6 +341,7 @@ void handle_instruction()
 	char returnString[40];
 	uint32_t result, base, offset, value, value2, location;
 	int jumpAmmount; 
+	uint64_t temp;
 
 	switch (special)
 	{
@@ -512,7 +513,7 @@ void handle_instruction()
 
 		case 0b001100:
 			sprintf(returnString, "SYSCALL\n");
-			exit(0);
+			RUN_FLAG = FALSE;
 			break;
 
 		default:
