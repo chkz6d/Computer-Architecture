@@ -141,7 +141,7 @@ void rdump() {
 	printf("-------------------------------------\n");
 	printf("[Register]\t[Value]\n");
 	printf("-------------------------------------\n");
-	for (i = 0; i < MIPS_REGS; i++){
+	for (i = 0; i < MIPrsS; i++){
 		printf("[R%d]\t: 0x%08x\n", i, CURRENT_STATE.REGS[i]);
 	}
 	printf("-------------------------------------\n");
@@ -308,11 +308,9 @@ void load_program() {
 /************************************************************/
 void handle_instruction()
 {
-	/*IMPLEMENT THIS*/
 	uint32_t addr = baseInstruction + (instructionNum * 4);
-	printf("[0x%x]\t", addr);
-	uint32_t readAddr = mem_read_32(addr);
-	uint32_t mask = 0xFC000000; // 28
+	uint32_t instruction = mem_read_32(addr);
+	uint32_t special = 0xFC000000; // 28
 	uint32_t rsMask = 0x03E00000; // 21
 	uint32_t rtMask = 0x001F0000; // 16
 	uint32_t rdMask = 0x0000F800; // 11
@@ -320,17 +318,17 @@ void handle_instruction()
 	uint32_t immediateMask = 0x0000FFFF; // 11
 	uint32_t lastMask = 0x0000003F;
 	uint32_t targetMask = 0x03FFFFFF;
-	uint32_t firstNums = (readAddr & mask) >> 26;
-	uint32_t rs = (readAddr & rsMask)  >> 21;
-	uint32_t rt = (readAddr & rtMask)  >> 16;
-	uint32_t rd = (readAddr & rdMask)  >> 11;
-	uint32_t sa = (readAddr & saMask)  >> 6;
-	uint32_t immediate = (readAddr & immediateMask)  >> 16;
-	uint32_t target = readAddr & targetMask;
-	uint32_t lastNums = readAddr & lastMask;
+	uint32_t firstNums = (instruction & special) >> 26;
+	uint32_t rs = (instruction & rsMask)  >> 21;
+	uint32_t rt = (instruction & rtMask)  >> 16;
+	uint32_t rd = (instruction & rdMask)  >> 11;
+	uint32_t sa = (instruction & saMask)  >> 6;
+	uint32_t immediate = (instruction & immediateMask)  >> 16;
+	uint32_t target = instruction & targetMask;
+	uint32_t lastNums = instruction & lastMask;
 	uint32_t result, base;
 
-	// printf("\nInstruction: [0x%x]\n", readAddr);
+	// printf("\nInstruction: [0x%x]\n", instruction);
 	// printf("First Nums: [0x%.2x]\n", firstNums);
 	// printf("R1 Nums: [0x%x]\n", rs);
 	// printf("R2 Nums: [0x%x]\n", rt);
@@ -608,117 +606,76 @@ void print_program(){
 /* Print the instruction at given memory address (in MIPS assembly format)    */
 /************************************************************/
 void print_instruction(uint32_t addr){
-	/*IMPLEMENT THIS*/
+	/*
+	Program Must Contain These Instructions -
+	ALU Instructions: 
+	ADD, ADDU, ADDI, ADDIU, SUB, SUBU, MULT, MULTU, DIV, DIVU, AND, ANDI, OR, ORI, XOR, XORI, NOR, SLT, SLTI, SLL, SRL, SRA
+	
+	Load/Store Instructions: 
+	LW, LB, LH, LUI, SW, SB, SH, MFHI, MFLO, MTHI, MTLO
+	
+	Control Flow Instructions: 
+	BEQ, BNE, BLEZ, BLTZ, BGEZ, BGTZ, J, JR, JAL, JALR
+	
+	System Call: 
+	SYSCALL (you should implement it to exit the program. To exit the program, the value of 10 (0xA in hex) should be in $v0 when SYSCALL is executed.
+	*/
 
-	// ALU Instructions: 
-	// ADD, ADDU, ADDI, ADDIU, SUB, SUBU, MULT, MULTU, DIV, DIVU, AND, ANDI, OR, ORI, XOR, XORI, NOR, SLT, SLTI, SLL, SRL, SRA
+	// Reading Instruction and Relevant Masks
+	uint32_t instruction = mem_read_32(addr); 			// Get the 32-bit instruction from memory
+	uint32_t specialMask = 0xFC000000; 					// Mask for bits 26-31
+	uint32_t rsMask = 0x03E00000; 						// Mask for bits 21-25
+	uint32_t rtMask = 0x001F0000; 						// Mask for bits 16-20
+	uint32_t rdMask = 0x0000F800;						// Mask for bits 11-15
+	uint32_t functMask = 0x0000003F;					// Mask for bits 1 - 6
+	uint32_t immediateMask = 0x0000FFFF; 				// Mask for bits 0 -16
+	uint32_t branchMask = 0x001F0000; 					// Mask for bits 16-20
 
-	// Load/Store Instructions: 
-	// LW, LB, LH, LUI, SW, SB, SH, MFHI, MFLO, MTHI, MTLO
+	// Variables for R-Type Instructions
+	uint32_t special 	= (instruction & specialMask) 	>> 26; 	// Shifting to get correct digits
+	uint32_t rs 		= (instruction & rsMask)  		>> 21;
+	uint32_t rt 		= (instruction & rtMask)  		>> 16;
+	uint32_t rd 		= (instruction & rdMask)  		>> 16;
+	uint32_t function 	= instruction & functMask;
 
-	// Control Flow Instructions: 
-	// BEQ, BNE, BLEZ, BLTZ, BGEZ, BGTZ, J, JR, JAL, JALR
+	// Variables for I-Type Instructions
+	uint32_t immediate 	= instruction & immediateMask;
 
-	// System Call: 
-	// SYSCALL (you should implement it to exit the program. To exit the program, the value of 10 (0xA in hex) should be in $v0 when SYSCALL is executed.
-	enum ALU{
-		ADD, 	// 000000, 100000
-		ADDU, 	// 000000, 100001
-		ADDI,	// 001000
-		ADDIU,	// 001001
-		SUB,	// 000000, 100010
-		SUBU,	// 000000, 100011
-		MULT, 	// 000000, 011000
-		MULTU, 	// 000000, 011001
-		DIV, 	// 000000, 011010
-		DIVU, 	// 000000, 011011
-		AND, 	// 000000, 100100
-		ANDI, 	// 001100
-		OR, 	// 000000, 100101
-		ORI, 	// 001101
-		XOR, 	// 000000, 100110
-		XORI, 	// 001110
-		NOR, 	// 000000, 100111
-		SLT, 	// 000000, 101010
-		SLTI, 	// 001010
-		SLL, 	// 000000, 000000
-		SRL, 	// 000000, 000010
-		SRA		// 000000, 000011
-	};
+	// Variables for J-Type Instructions
+	uint32_t branch 	= instruction & branchMask;
 
-	enum LS{
-		LW, 	// 100011
-		LB, 	// 100000
-		LH, 	// 100001
-		LUI, 	// 001111
-		SW, 	// 101011
-		SB, 	// 101000
-		SH, 	// 101001
-		MFHI, 	// 000000, 010000
-		MFLO, 	// 000000, 010010
-		MTHI, 	// 000000, 010001
-		MTLO	// 000000, 010011
-	};
-
-	enum CF{
-		BEQ, 	// 000100
-		BNE, 	// 000101
-		BLEZ, 	// 000110, XXXXX, 00000
-		BLTZ, 	// 000001, XXXXX, 00000
-		BGEZ, 	// 000001, XXXXX, 00001
-		BGTZ, 	// 000111, XXXXX, 00000
-		J, 		// 000010
-		JR, 	// 000000, 001000
-		JAL, 	// 000011
-		JALR	// 000000, 001001
-	};
-
-	uint32_t readAddr = mem_read_32(addr);
-	uint32_t mask = 0xFC000000; // 28
-	uint32_t r1Mask = 0x03E00000; // 21
-	uint32_t r2Mask = 0x001F0000; // 16
-	uint32_t lastMask = 0x0000003F;
-	uint32_t firstNums = (readAddr & mask) >> 26;
-	uint32_t r1Nums = (readAddr & r1Mask)  >> 21;
-	uint32_t r2Nums = (readAddr & r2Mask)  >> 16;
-	uint32_t lastNums = readAddr & lastMask;
-
-	printf("\nInstruction: [0x%x]\n", readAddr);
-	printf("First Nums: [0x%.2x]\n", firstNums);
-	printf("R1 Nums: [0x%x]\n", r1Nums);
-	printf("R2 Nums: [0x%x]\n", r2Nums);
-	printf("Last Nums: [0x%x]\n", lastNums);
+	char returnString[40];
 
 
-	switch (firstNums)
+	switch (special)
 	{
 	// Special case code
 	case 0b000000:
-		switch (lastNums)
+		switch (function)
 		{
 		case 0b100000:
-			printf("ADD\n");
+			sprintf(returnString, "ADD $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100001:
-			printf("ADDU\n");
+			sprintf(returnString, "ADD $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100010:
-			printf("SUB\n");
+			sprintf(returnString, "SUB $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100011:
-			printf("SUBU\n");
+			sprintf(returnString, "SUBU $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b011000:
-			printf("MULT\n");
+			sprintf(returnString, "MULT $%d, $%d\n", rs, rt);
 			break;
 		case 0b011001:
-			printf("MULTU\n");
+			sprintf(returnString, "MULT $%d, $%d\n", rs, rt);
 			break;
 		case 0b011010:
-			printf("DIV\n");
+			sprintf(returnString, "DIV $%d, $%d\n", rs, rt);
 			break;
 		case 0b011011:
-			printf("DIVU\n");
+			sprintf(returnString, "DIVU $%d, $%d\n", rs, rt);
 			break;
 		case 0b100100:
 			printf("AND\n");
@@ -776,7 +733,7 @@ void print_instruction(uint32_t addr){
 		printf("BLEZ\n");
 		break;
 	case 0b000001:
-		switch (r2Nums){
+		switch (rt){
 		case 0b00000:
 			printf("BLTZ\n");
 			break;
