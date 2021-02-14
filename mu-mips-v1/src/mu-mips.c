@@ -708,6 +708,12 @@ void print_instruction(uint32_t addr){
 		case 0b010010:
 			sprintf(returnString, "MFLO $%d\n", rd);
 			break;
+		case 0b010001:
+			sprintf(returnString, "MTHI $%d\n", rs);
+			break;
+		case 0b010011:
+			sprintf(returnString, "MTLO $%d\n", rs);
+			break;
 		case 0b001000:
 			sprintf(returnString, "JR $%d\n", rs);
 			break;
