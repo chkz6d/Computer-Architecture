@@ -308,138 +308,113 @@ void load_program() {
 /************************************************************/
 void handle_instruction()
 {
+	// Incrementing address by instructNum bytes to get the right addresss
 	uint32_t addr = baseInstruction + (instructionNum * 4);
-	uint32_t instruction = mem_read_32(addr);
-	uint32_t special = 0xFC000000; // 28
-	uint32_t rsMask = 0x03E00000; // 21
-	uint32_t rtMask = 0x001F0000; // 16
-	uint32_t rdMask = 0x0000F800; // 11
-	uint32_t saMask = 0x000007C0; // 11
-	uint32_t immediateMask = 0x0000FFFF; // 11
-	uint32_t lastMask = 0x0000003F;
-	uint32_t targetMask = 0x03FFFFFF;
-	uint32_t firstNums = (instruction & special) >> 26;
-	uint32_t rs = (instruction & rsMask)  >> 21;
-	uint32_t rt = (instruction & rtMask)  >> 16;
-	uint32_t rd = (instruction & rdMask)  >> 11;
-	uint32_t sa = (instruction & saMask)  >> 6;
-	uint32_t immediate = (instruction & immediateMask)  >> 16;
-	uint32_t target = instruction & targetMask;
-	uint32_t lastNums = instruction & lastMask;
+
+	// Reading Instruction and Relevant Masks
+	uint32_t instruction = mem_read_32(addr); 			// Get the 32-bit instruction from memory
+	uint32_t specialMask = 0xFC000000; 					// Mask for bits 26-31
+	uint32_t rsMask = 0x03E00000; 						// Mask for bits 21-25
+	uint32_t rtMask = 0x001F0000; 						// Mask for bits 16-20
+	uint32_t rdMask = 0x0000F800;						// Mask for bits 11-15
+	uint32_t functMask = 0x0000003F;					// Mask for bits 1 - 6
+	uint32_t immediateMask = 0x0000FFFF; 				// Mask for bits 0 -16
+	uint32_t targetMask = 0x03FFFFFF; 					// Mask for bits  0-26
+	uint32_t saMask = 0x000007C0; 						// Mask for bits  6-20
+
+	// Variables for R-Type Instructions
+	uint32_t special 	= (instruction & specialMask) 	>> 26; 	// Shifting to get correct digits
+	uint32_t rs 		= (instruction & rsMask)  		>> 21;
+	uint32_t rt 		= (instruction & rtMask)  		>> 16;
+	uint32_t rd 		= (instruction & rdMask)  		>> 11;
+	uint32_t function 	= instruction & functMask;
+	uint32_t sa 		= (instruction & saMask)		>>  6;
+
+	// Variables for I-Type Instructions
+	uint32_t immediate 	= instruction & immediateMask;
+
+	// Variables for J-Type Instructions
+	uint32_t target 	= instruction & targetMask;
+
+	// Variables needed for operation
+	char returnString[40];
 	uint32_t result, base;
 
-	// printf("\nInstruction: [0x%x]\n", instruction);
-	// printf("First Nums: [0x%.2x]\n", firstNums);
-	// printf("R1 Nums: [0x%x]\n", rs);
-	// printf("R2 Nums: [0x%x]\n", rt);
-	// printf("Last Nums: [0x%x]\n", lastNums);
-	// printf("rdMask: [0x%x]\n", rdMask);
-	// printf("rd: [0x%x]\n", rd);
-	// printf("sa: [0x%x]\n", sa);
-	// printf("immediate: [0x%x]\n", immediate);
-
-
-	// Local Variables
-	// CURRENT_STATE.REGS[0] = 5; // Example of how to put the operations in here
-
-	switch (firstNums)
+		switch (special)
 	{
 	// Special case code
 	case 0b000000:
-		switch (lastNums)
+		switch (function)
 		{
 		case 0b100000:
-			rd = rs + rt;
-			printf("ADD: %lu = %lu + %lu\n", rd, rs, rt);
+			sprintf(returnString, "ADD $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100001:
-			rd = rs + rt;
-			printf("ADDU: %lu = %lu + %lu\n", rd, rs, rt);
+			sprintf(returnString, "ADDU $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100010:
-			rd = rs - rt;
-			printf("SUB: %lu = %lu - %lu\n", rd, rs, rt);
+			sprintf(returnString, "SUB $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100011:
-			rd = rs - rt;
-			printf("SUBU: %lu = %lu - %lu\n", rd, rs, rt);
+			sprintf(returnString, "SUBU $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b011000:
-			result = rs * rt;
-			printf("MULT: %lu = %lu * %lu\n", result, rs, rt);
+			sprintf(returnString, "MULT $%d, $%d\n", rs, rt);
 			break;
 		case 0b011001:
-			result = rs * rt;
-			printf("MULTU: %lu = %lu * %lu\n", result, rs, rt);
+			sprintf(returnString, "MULTU $%d, $%d\n", rs, rt);
 			break;
 		case 0b011010:
-			result = rs / rt;
-			printf("DIV: %lu = %lu / %lu\n", result, rs, rt);
+			sprintf(returnString, "DIV $%d, $%d\n", rs, rt);
 			break;
 		case 0b011011:
-			result = rs / rt;
-			printf("DIVU: %lu = %lu / %lu\n", result, rs, rt);
+			sprintf(returnString, "DIVU $%d, $%d\n", rs, rt);
 			break;
 		case 0b100100:
-			rd = rs & rt;
-			printf("AND: %lu = %lu & %lu\n", rd, rs, rt);
+			sprintf(returnString, "AND $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100101:
-			rd = rs || rt;
-			printf("OR: %lu = %lu || %lu\n", rd, rs, rt);
+			sprintf(returnString, "OR $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100110:
-			rd = rs ^ rt;
-			printf("XOR: %lu = %lu ^ %lu\n", rd, rs, rt);
+			sprintf(returnString, "XOR $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100111:
-			rd = !(rs || rt);
-			printf("NOR: %lu = !(%lu || %lu)\n", rd, rs, rt);
+			sprintf(returnString, "NOR $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b101010:
-			if( rs < rt ){
-				rd = 1;
-			}
-			else{
-				rd = 0;
-			}
-			printf("SLT: %lu\n", rd);
+			sprintf(returnString, "SLT $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b000000:
-			rd = rt << sa;
-			printf("SLL: %lu = %lu << %lu\n", rd, rt, sa);
+			sprintf(returnString, "SLL $%d, $%d, $%d\n", rd, rt, sa);
 			break;
 		case 0b000010:
-			rd = rt >> sa;
-			printf("SRL: %lu = %lu >> %lu\n", rd, rt, sa);
+			sprintf(returnString, "SRL $%d, $%d, $%d\n", rd, rt, sa);
 			break;
 		case 0b000011:
-			rd = rt >> sa;
-			printf("SRA: %lu = %lu >> %lu\n", rd, rt, sa);
+			sprintf(returnString, "SRA $%d, $%d, $%d\n", rd, rt, sa);
 			break;
 		case 0b010000:
-			rd = CURRENT_STATE.HI;
-			printf("MFHI: %lu = %lu\n", rd, CURRENT_STATE.HI);
+			sprintf(returnString, "MFHI $%d\n", rd);
 			break;
 		case 0b010010:
-			rd = CURRENT_STATE.LO;
-			printf("MFLO: %lu = %lu\n", rd, CURRENT_STATE.LO);
+			sprintf(returnString, "MFLO $%d\n", rd);
 			break;
 		case 0b010001:
-			printf("MDHI\n");
+			sprintf(returnString, "MTHI $%d\n", rs);
 			break;
 		case 0b010011:
-			printf("MDLO\n");
+			sprintf(returnString, "MTLO $%d\n", rs);
 			break;
 		case 0b001000:
-			printf("JR: Jump to %lu\n", rs);
+			sprintf(returnString, "JR $%d\n", rs);
 			break;
 		case 0b001001:
-			printf("JALR: Jump to %lu with delay 1\n", rs);
+			sprintf(returnString, "JALR $%d, $%d\n", rd, rs);
 			break;
 		case 0b001100:
-			printf("SYSCALL: Throw System Call excepetion\n");
-			exit(0);
+			sprintf(returnString, "SYSCALL\n");
+			break;
 		default:
 			printf("No Special Instruction Found\n");
 			break;
@@ -448,132 +423,83 @@ void handle_instruction()
 	
 	// Register case code
 	case 0b000110:
-		if(rs <= 0){
-			printf("BLEZ: Branch to %lu + \n", addr, immediate);
-		}
-		else{
-			printf("BLEZ: No branch\n", rs);
-		}
+		sprintf(returnString, "BLEZ $%d, %d\n", rs, immediate);
 		break;
 	case 0b000001:
 		switch (rt){
 		case 0b00000:
-			if(rs < 0){
-				printf("BLTZ: Branch to %lu + \n", addr, immediate);
-			}
-			else{
-				printf("BLTZ: No branch\n");
-			}
+			sprintf(returnString, "BLTZ $%d, %d\n", rs, immediate);
 			break;
 		case 0b00001:
-			if(rs >= 0){
-				printf("BGEZ: Branch to %lu + \n", addr, immediate);
-			}
-			else{
-				printf("BGEZ: No branch\n");
-			}
+			sprintf(returnString, "BGEZ $%d, %d\n", rs, immediate);
 			break;
 		default:
 			printf("No Register Type Instruction Found\n");
 			break;
 	}
 	case 0b000111:
-		if(rs > 0){
-			printf("BGTZ: Branch to %lu + \n", addr, immediate);
-		}
-		else{
-			printf("BGTZ: No branch\n");
-		}
+		sprintf(returnString, "BGTZ $%d, %d\n", rs, immediate);
 		break;
 
 	// Normal case code
 	case 0b001000:
-		rt = rs + immediate;
-		printf("ADDI: %lu = %lu + %lu\n", rt, rs, immediate);
+		sprintf(returnString, "ADDI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001001:
-		rt = rs + immediate;
-		printf("ADDIU: %lu = %lu + %lu\n", rt, rs, immediate);
+		sprintf(returnString, "ADDI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001100:
-		rt = rs & immediate;
-		printf("ANDI: %lu = %lu & %lu\n", rt, rs, immediate);
+		sprintf(returnString, "ADDI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001101:
-		rt = rs || immediate;
-		printf("ORI: %lu = %lu || %lu\n", rt, rs, immediate);
+		sprintf(returnString, "ORI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001110:
-		rt = rs ^ immediate;
-		printf("XORI: %lu = %lu ^ %lu\n", rd, rs, immediate);
+		sprintf(returnString, "XORI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001010:
-		if( rs < immediate ){
-			rt = 1;
-		}
-		else{
-			rt = 0;
-		}
-		printf("SLTI: %lu\n", rt);
+		sprintf(returnString, "SLTI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b100011:
-		// Do this for 32 bits
-		rt = mem_read_32(immediate);
-		printf("LW: %ls\n", rt);
+		sprintf(returnString, "LW $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b100000:
-		// Do this for 4 bits
-		rt = mem_read_32(immediate);
-		printf("LB: %ls\n", rt);
+		sprintf(returnString, "LB $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b100001:
-		// Do this for 16 bits
-		rt = mem_read_32(immediate);
-		printf("LH: %ls\n", rt);
+		sprintf(returnString, "LH $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b001111:
-		rt = mem_read_32(immediate) << 16;
-		printf("LUI: %ls\n", rt);
+		sprintf(returnString, "LUI $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b101011:
-		base = rt;
-		printf("SW\n");
+		sprintf(returnString, "SW $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b101000:
-		base = rt;
-		printf("SB\n");
+		sprintf(returnString, "SB $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b101001:
-		base = rt;
-		printf("SH\n");
+		sprintf(returnString, "SH $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b000100:
-		if(rs = rt){
-			printf("BNE: Branch to %lu + \n", rs, rt);
-		}
-		printf("BEQ\n");
+		sprintf(returnString, "BEQ $%d, $%d, %d\n", rs, rt, immediate);
 		break;
 	case 0b000101:
-		if(rs != rt){
-			printf("BNE: Branch to %lu + \n", rs, rt);
-		}
-		printf("BNE\n");
+		sprintf(returnString, "BNE $%d, $%d, %d\n", rs, rt, immediate);
 		break;
 	case 0b000010:
-		printf("J: Jump to %lu\n", target);
-		printf("J\n");
+		sprintf(returnString, "J %lu\n", (size_t)(target) << 2);
 		break;
 	case 0b000011:
-		printf("JAL: Jump to %lu and link\n", target);
-		printf("JAL\n");
+		sprintf(returnString, "JAL %lu\n", (size_t)(target) << 2);
 		break;
 	
 	default:
 		printf("No Normal Type Instruction Found\n");
 		break;
 	}
-	printf("\n");
 
+	printf("%s", returnString);
 	instructionNum += 1;
 }
 
@@ -629,14 +555,14 @@ void print_instruction(uint32_t addr){
 	uint32_t rdMask = 0x0000F800;						// Mask for bits 11-15
 	uint32_t functMask = 0x0000003F;					// Mask for bits 1 - 6
 	uint32_t immediateMask = 0x0000FFFF; 				// Mask for bits 0 -16
-	uint32_t branchMask = 0x001F0000; 					// Mask for bits 16-20
-	uint32_t saMask = 0x00000780; 						// Mask for bits  6-20
+	uint32_t targetMask = 0x03FFFFFF; 					// Mask for bits  0-26
+	uint32_t saMask = 0x000007C0; 						// Mask for bits  6-20
 
 	// Variables for R-Type Instructions
 	uint32_t special 	= (instruction & specialMask) 	>> 26; 	// Shifting to get correct digits
 	uint32_t rs 		= (instruction & rsMask)  		>> 21;
 	uint32_t rt 		= (instruction & rtMask)  		>> 16;
-	uint32_t rd 		= (instruction & rdMask)  		>> 16;
+	uint32_t rd 		= (instruction & rdMask)  		>> 11;
 	uint32_t function 	= instruction & functMask;
 	uint32_t sa 		= (instruction & saMask)		>>  6;
 
@@ -644,7 +570,7 @@ void print_instruction(uint32_t addr){
 	uint32_t immediate 	= instruction & immediateMask;
 
 	// Variables for J-Type Instructions
-	uint32_t branch 	= instruction & branchMask;
+	uint32_t target 	= instruction & targetMask;
 
 	char returnString[40];
 
@@ -796,10 +722,10 @@ void print_instruction(uint32_t addr){
 		sprintf(returnString, "BNE $%d, $%d, %d\n", rs, rt, immediate);
 		break;
 	case 0b000010:
-		sprintf(returnString, "J %zu\n", (size_t)(instruction && 0x03FFFFFF) << 2);
+		sprintf(returnString, "J %lu\n", (size_t)(target) << 2);
 		break;
 	case 0b000011:
-		sprintf(returnString, "JAL %zu\n", (size_t)(instruction && 0x03FFFFFF) << 2);
+		sprintf(returnString, "JAL %lu\n", (size_t)(target) << 2);
 		break;
 	
 	default:
