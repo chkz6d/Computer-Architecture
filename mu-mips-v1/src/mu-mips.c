@@ -141,7 +141,7 @@ void rdump() {
 	printf("-------------------------------------\n");
 	printf("[Register]\t[Value]\n");
 	printf("-------------------------------------\n");
-	for (i = 0; i < MIPrsS; i++){
+	for (i = 0; i < MIPS_REGS; i++){
 		printf("[R%d]\t: 0x%08x\n", i, CURRENT_STATE.REGS[i]);
 	}
 	printf("-------------------------------------\n");
@@ -154,7 +154,7 @@ void rdump() {
 /* Read a command from standard input.                                                               */  
 /***************************************************************/
 void handle_command() {                         
-	char buffer[20];
+	char returnString[20];
 	uint32_t start, stop, cycles;
 	uint32_t register_no;
 	int register_value;
@@ -162,11 +162,11 @@ void handle_command() {
 
 	printf("MU-MIPS SIM:> ");
 
-	if (scanf("%s", buffer) == EOF){
+	if (scanf("%s", returnString) == EOF){
 		exit(0);
 	}
 
-	switch(buffer[0]) {
+	switch(returnString[0]) {
 		case 'S':
 		case 's':
 			runAll(); 
@@ -189,9 +189,9 @@ void handle_command() {
 			exit(0);
 		case 'R':
 		case 'r':
-			if (buffer[1] == 'd' || buffer[1] == 'D'){
+			if (returnString[1] == 'd' || returnString[1] == 'D'){
 				rdump();
-			}else if(buffer[1] == 'e' || buffer[1] == 'E'){
+			}else if(returnString[1] == 'e' || returnString[1] == 'E'){
 				reset();
 			}
 			else {
@@ -630,6 +630,7 @@ void print_instruction(uint32_t addr){
 	uint32_t functMask = 0x0000003F;					// Mask for bits 1 - 6
 	uint32_t immediateMask = 0x0000FFFF; 				// Mask for bits 0 -16
 	uint32_t branchMask = 0x001F0000; 					// Mask for bits 16-20
+	uint32_t saMask = 0x00000780; 						// Mask for bits  6-20
 
 	// Variables for R-Type Instructions
 	uint32_t special 	= (instruction & specialMask) 	>> 26; 	// Shifting to get correct digits
@@ -637,6 +638,7 @@ void print_instruction(uint32_t addr){
 	uint32_t rt 		= (instruction & rtMask)  		>> 16;
 	uint32_t rd 		= (instruction & rdMask)  		>> 16;
 	uint32_t function 	= instruction & functMask;
+	uint32_t sa 		= (instruction & saMask)		>>  6;
 
 	// Variables for I-Type Instructions
 	uint32_t immediate 	= instruction & immediateMask;
@@ -645,7 +647,6 @@ void print_instruction(uint32_t addr){
 	uint32_t branch 	= instruction & branchMask;
 
 	char returnString[40];
-
 
 	switch (special)
 	{
@@ -657,7 +658,7 @@ void print_instruction(uint32_t addr){
 			sprintf(returnString, "ADD $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100001:
-			sprintf(returnString, "ADD $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "ADDU $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100010:
 			sprintf(returnString, "SUB $%d, $%d, $%d\n", rd, rs, rt);
@@ -669,7 +670,7 @@ void print_instruction(uint32_t addr){
 			sprintf(returnString, "MULT $%d, $%d\n", rs, rt);
 			break;
 		case 0b011001:
-			sprintf(returnString, "MULT $%d, $%d\n", rs, rt);
+			sprintf(returnString, "MULTU $%d, $%d\n", rs, rt);
 			break;
 		case 0b011010:
 			sprintf(returnString, "DIV $%d, $%d\n", rs, rt);
@@ -678,50 +679,44 @@ void print_instruction(uint32_t addr){
 			sprintf(returnString, "DIVU $%d, $%d\n", rs, rt);
 			break;
 		case 0b100100:
-			printf("AND\n");
+			sprintf(returnString, "AND $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100101:
-			printf("OR\n");
+			sprintf(returnString, "OR $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100110:
-			printf("XOR\n");
+			sprintf(returnString, "XOR $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b100111:
-			printf("NOR\n");
+			sprintf(returnString, "NOR $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b101010:
-			printf("SLT\n");
+			sprintf(returnString, "SLT $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b000000:
-			printf("SLL\n");
+			sprintf(returnString, "SLL $%d, $%d, $%d\n", rd, rt, sa);
 			break;
 		case 0b000010:
-			printf("SRL\n");
+			sprintf(returnString, "SRL $%d, $%d, $%d\n", rd, rt, sa);
 			break;
 		case 0b000011:
-			printf("SRA\n");
+			sprintf(returnString, "SRA $%d, $%d, $%d\n", rd, rt, sa);
 			break;
 		case 0b010000:
-			printf("MFHI\n");
+			sprintf(returnString, "MFHI $%d\n", rd);
 			break;
 		case 0b010010:
-			printf("MFLO\n");
-			break;
-		case 0b010001:
-			printf("MDHI\n");
-			break;
-		case 0b010011:
-			printf("MDLO\n");
+			sprintf(returnString, "MFLO $%d\n", rd);
 			break;
 		case 0b001000:
-			printf("JR\n");
+			sprintf(returnString, "JR $%d\n", rs);
 			break;
 		case 0b001001:
-			printf("JALR\n");
+			sprintf(returnString, "JALR $%d, $%d\n", rd, rs);
 			break;
 		case 0b001100:
-			printf("SYSCALL\n");
-			exit(0);
+			sprintf(returnString, "SYSCALL\n");
+			break;
 		default:
 			printf("No Special Instruction Found\n");
 			break;
@@ -730,82 +725,84 @@ void print_instruction(uint32_t addr){
 	
 	// Register case code
 	case 0b000110:
-		printf("BLEZ\n");
+		sprintf(returnString, "BLEZ $%d, %d\n", rs, immediate);
 		break;
 	case 0b000001:
 		switch (rt){
 		case 0b00000:
-			printf("BLTZ\n");
+			sprintf(returnString, "BLTZ $%d, %d\n", rs, immediate);
 			break;
 		case 0b00001:
-			printf("BGEZ\n");
+			sprintf(returnString, "BGEZ $%d, %d\n", rs, immediate);
 			break;
 		default:
 			printf("No Register Type Instruction Found\n");
 			break;
 	}
 	case 0b000111:
-		printf("BGTZ\n");
+		sprintf(returnString, "BGTZ $%d, %d\n", rs, immediate);
 		break;
 
 	// Normal case code
 	case 0b001000:
-		printf("ADDI\n");
+		sprintf(returnString, "ADDI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001001:
-		printf("ADDIU\n");
+		sprintf(returnString, "ADDI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001100:
-		printf("ANDI\n");
+		sprintf(returnString, "ADDI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001101:
-		printf("ORI\n");
+		sprintf(returnString, "ORI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001110:
-		printf("XORI\n");
+		sprintf(returnString, "XORI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b001010:
-		printf("SLTI\n");
+		sprintf(returnString, "SLTI $%d, $%d, %d\n", rt, rs, immediate);
 		break;
 	case 0b100011:
-		printf("LW\n");
+		sprintf(returnString, "LW $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b100000:
-		printf("LB\n");
+		sprintf(returnString, "LB $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b100001:
-		printf("LH\n");
+		sprintf(returnString, "LH $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b001111:
-		printf("LUI\n");
+		sprintf(returnString, "LUI $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b101011:
-		printf("SW\n");
+		sprintf(returnString, "SW $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b101000:
-		printf("SB\n");
+		sprintf(returnString, "SB $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b101001:
-		printf("SH\n");
+		sprintf(returnString, "SH $%d, %d($%d)\n", rt, immediate, rs);
 		break;
 	case 0b000100:
-		printf("BEQ\n");
+		sprintf(returnString, "BEQ $%d, $%d, %d\n", rs, rt, immediate);
 		break;
 	case 0b000101:
-		printf("BNE\n");
+		sprintf(returnString, "BNE $%d, $%d, %d\n", rs, rt, immediate);
 		break;
 	case 0b000010:
-		printf("J\n");
+		sprintf(returnString, "J %zu\n", (size_t)(instruction && 0x03FFFFFF) << 2);
 		break;
 	case 0b000011:
-		printf("JAL\n");
+		sprintf(returnString, "JAL %zu\n", (size_t)(instruction && 0x03FFFFFF) << 2);
 		break;
 	
 	default:
 		printf("No Normal Type Instruction Found\n");
 		break;
 	}
-	printf("\n");
+
+	printf("%s", returnString);
+	
 }
 
 
