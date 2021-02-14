@@ -348,32 +348,30 @@ void handle_instruction()
 	case 0b000000:
 		switch (function)
 		{
-		case 0b100000:
+		case 0b100000: //ADD instruction
+			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] + CURRENT_STATE.REGS[rt];
 			sprintf(returnString, "ADD $%d, $%d, $%d\n", rd, rs, rt);
-			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] + CURRENT_STATE.REGS[rt];
 			break;
-
-		case 0b100001:
-			sprintf(returnString, "ADDU $%d, $%d, $%d\n", rd, rs, rt);
-			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] + CURRENT_STATE.REGS[rt];
-			break;
-
-		case 0b100010:
-			sprintf(returnString, "SUB $%d, $%d, $%d\n", rd, rs, rt);
-			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] - CURRENT_STATE.REGS[rt];
-			break;
-
-		case 0b100011:
-			sprintf(returnString, "SUBU $%d, $%d, $%d\n", rd, rs, rt);
-			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] - CURRENT_STATE.REGS[rt];
-			break;
-
-		case 0b011000:
-			sprintf(returnString, "MULT $%d, $%d\n", rs, rt);
-			int64_t temp;
-			if(prevAddress == 0b010000 | prevAddress == 0b010010)
-			{
 				
+		case 0b100001: //ADDU instruction
+			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] + CURRENT_STATE.REGS[rt];
+			sprintf(returnString, "ADDU $%d, $%d, $%d\n", rd, rs, rt);
+			break;
+				
+		case 0b100010: //SUB instruction
+			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] - CURRENT_STATE.REGS[rt];
+			sprintf(returnString, "SUB $%d, $%d, $%d\n", rd, rs, rt);
+			break;
+				
+		case 0b100011: //SUBU instruction
+			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] - CURRENT_STATE.REGS[rt];
+			sprintf(returnString, "SUBU $%d, $%d, $%d\n", rd, rs, rt);
+			break;
+				
+		case 0b011000: //MULT instruction
+			if(prevAddress == 0b010000 || prevAddress == 0b010010)
+			{
+				sprintf(returnString, "Error MULT instruction\n");
 			}
 			else
 			{
@@ -381,90 +379,114 @@ void handle_instruction()
 				NEXT_STATE.HI = temp >> 32;
 				NEXT_STATE.LO = temp & 0xFFFFFFFF;
 			}
+			sprintf(returnString, "MULT $%d, $%d\n", rs, rt);
 			break;
-
-
-		case 0b011001:
-			sprintf(returnString, "MULTU $%d, $%d\n", rs, rt);
-			int64_t temp;
-			temp = CURRENT_STATE.REGS[rs] * CURRENT_STATE.REGS[rt];
-			NEXT_STATE.HI = temp >> 32;
-			NEXT_STATE.LO = temp & 0xFFFFFFFF;
-			break;
-
-		case 0b011010:
-			sprintf(returnString, "DIV $%d, $%d\n", rs, rt);
-			NEXT_STATE.HI = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
-			NEXT_STATE.LO = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
-			break;
-
-		case 0b011011:
-			sprintf(returnString, "DIVU $%d, $%d\n", rs, rt);
-			NEXT_STATE.HI = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
-			NEXT_STATE.LO = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
-			break;
-
-		case 0b100100:
-			sprintf(returnString, "AND $%d, $%d, $%d\n", rd, rs, rt);
-			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] & CURRENT_STATE.REGS[rt];
-			break;
-
-		case 0b100101:
-			sprintf(returnString, "OR $%d, $%d, $%d\n", rd, rs, rt);
-			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] | CURRENT_STATE.REGS[rt];
-			break;
-
-		case 0b100110:
-			sprintf(returnString, "XOR $%d, $%d, $%d\n", rd, rs, rt);
-			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] ^ CURRENT_STATE.REGS[rt];
-			break;
-
-		case 0b100111:
-			sprintf(returnString, "NOR $%d, $%d, $%d\n", rd, rs, rt);
-			NEXT_STATE.REGS[rd] = ~ (CURRENT_STATE.REGS[rs] | CURRENT_STATE.REGS[rt]);
-			break;
-
-		case 0b101010:
-			sprintf(returnString, "SLT $%d, $%d, $%d\n", rd, rs, rt);
-			if(CURRENT_STATE.REGS[rs] < CURRENT_STATE.REGS[rt]){
-                NEXT_STATE.REGS[rd] = 0x01;
+				
+		case 0b011001: //MULTU instruction
+			if(prevAddress == 0b010000 || prevAddress == 0b010010)
+			{
+				sprintf(returnString, "Error MULTU instruction\n");
 			}
-            else{
-                NEXT_STATE.REGS[rd] = 0x00;
-            }
+			else
+			{
+				temp = CURRENT_STATE.REGS[rs] * CURRENT_STATE.REGS[rt];
+				NEXT_STATE.HI = temp >> 32;
+				NEXT_STATE.LO = temp & 0xFFFFFFFF;
+			}
+			sprintf(returnString, "MULTU $%d, $%d\n", rs, rt);
 			break;
-
-		case 0b000000:
-			sprintf(returnString, "SLL $%d, $%d, $%d\n", rd, rt, sa);
+				
+		case 0b011010: //DIV instruction
+			if(prevAddress == 0b010000 || prevAddress == 0b010010)
+			{
+				sprintf(returnString, "Error DIV instruction\n");
+			}
+			else
+			{
+				NEXT_STATE.HI = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
+				NEXT_STATE.LO = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
+			}
+			sprintf(returnString, "DIV $%d, $%d\n", rs, rt);
+			break;
+				
+		case 0b011011: //DIVU instruction
+			if(prevAddress == 0b010000 || prevAddress == 0b010010)
+			{
+				sprintf(returnString, "Error DIVU instruction\n");
+			}
+			else
+			{
+				NEXT_STATE.HI = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
+				NEXT_STATE.LO = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
+			}
+			sprintf(returnString, "DIVU $%d, $%d\n", rs, rt);
+			break;
+				
+		case 0b100100: //AND instruction
+			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] & CURRENT_STATE.REGS[rt];
+			sprintf(returnString, "AND $%d, $%d, $%d\n", rd, rs, rt);
+			break;
+				
+		case 0b100101: //OR instruction
+			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] | CURRENT_STATE.REGS[rt];
+			sprintf(returnString, "OR $%d, $%d, $%d\n", rd, rs, rt);
+			break;
+				
+		case 0b100110: //XOR instruction
+			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] ^ CURRENT_STATE.REGS[rt];
+			sprintf(returnString, "XOR $%d, $%d, $%d\n", rd, rs, rt);
+			break;
+				
+		case 0b100111: //NOR instruction
+			NEXT_STATE.REGS[rd] = ~ (CURRENT_STATE.REGS[rs] | CURRENT_STATE.REGS[rt]);
+			sprintf(returnString, "NOR $%d, $%d, $%d\n", rd, rs, rt);
+			break;
+				
+		case 0b101010: //SLT instruction
+			if(CURRENT_STATE.REGS[rs] < CURRENT_STATE.REGS[rt])
+			{
+                		NEXT_STATE.REGS[rd] = 0x01;
+			}
+            		else
+			{
+                		NEXT_STATE.REGS[rd] = 0x00;
+            		}
+			sprintf(returnString, "SLT $%d, $%d, $%d\n", rd, rs, rt);
+			break;
+				
+		case 0b000000: //SLL instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] << immediate;
+			sprintf(returnString, "SLL $%d, $%d, $%d\n", rd, rt, sa);
 			break;
-
-		case 0b000010:
-			sprintf(returnString, "SRL $%d, $%d, $%d\n", rd, rt, sa);
+				
+		case 0b000010: //SRL instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] >> immediate;
+			sprintf(returnString, "SRL $%d, $%d, $%d\n", rd, rt, sa);
 			break;
-
-		case 0b000011:
-			sprintf(returnString, "SRA $%d, $%d, $%d\n", rd, rt, sa);
-			if((CURRENT_STATE.REGS[rt]&0x80000000)>>31){
+				
+		case 0b000011: //SRA instruction
+			if((CURRENT_STATE.REGS[rt]&0x80000000)>>31)
+			{
 				NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] >> immediate;
 				NEXT_STATE.REGS[rd] |= 0x80000000;
 			}
-			else{
+			else
+			{
 				NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] >> immediate;
 			}
+			sprintf(returnString, "SRA $%d, $%d, $%d\n", rd, rt, sa);
 			break;
-
-		case 0b010000:
-			sprintf(returnString, "MFHI $%d\n", rd);
+				
+		case 0b010000: //MFHI instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.HI;
 			prevAddress = function;
+			sprintf(returnString, "MFHI $%d\n", rd);
 			break;
-
-		case 0b010010:
-			sprintf(returnString, "MFLO $%d\n", rd);
+				
+		case 0b010010: //MFLO instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.LO;
 			prevAddress = function;
+			sprintf(returnString, "MFLO $%d\n", rd);
 			break;
 
 		case 0b010001:
