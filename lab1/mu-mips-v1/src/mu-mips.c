@@ -352,22 +352,22 @@ void handle_instruction()
 		{
 		case 0b100000: //ADD instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] + CURRENT_STATE.REGS[rt];
-			sprintf(returnString, "ADD $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "ADD $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 				
 		case 0b100001: //ADDU instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] + CURRENT_STATE.REGS[rt];
-			sprintf(returnString, "ADDU $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "ADDU $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 				
 		case 0b100010: //SUB instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] - CURRENT_STATE.REGS[rt];
-			sprintf(returnString, "SUB $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "SUB $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 				
 		case 0b100011: //SUBU instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] - CURRENT_STATE.REGS[rt];
-			sprintf(returnString, "SUBU $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "SUBU $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 				
 		case 0b011000: //MULT instruction
@@ -381,7 +381,7 @@ void handle_instruction()
 				NEXT_STATE.HI = temp >> 32;
 				NEXT_STATE.LO = temp & 0xFFFFFFFF;
 			}
-			sprintf(returnString, "MULT $%d, $%d\n", rs, rt);
+			sprintf(returnString, "MULT $r%d, $r%d\n", rs, rt);
 			break;
 				
 		case 0b011001: //MULTU instruction
@@ -395,7 +395,7 @@ void handle_instruction()
 				NEXT_STATE.HI = temp >> 32;
 				NEXT_STATE.LO = temp & 0xFFFFFFFF;
 			}
-			sprintf(returnString, "MULTU $%d, $%d\n", rs, rt);
+			sprintf(returnString, "MULTU $r%d, $r%d\n", rs, rt);
 			break;
 				
 		case 0b011010: //DIV instruction
@@ -408,7 +408,7 @@ void handle_instruction()
 				NEXT_STATE.HI = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
 				NEXT_STATE.LO = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
 			}
-			sprintf(returnString, "DIV $%d, $%d\n", rs, rt);
+			sprintf(returnString, "DIV $r%d, $r%d\n", rs, rt);
 			break;
 				
 		case 0b011011: //DIVU instruction
@@ -421,27 +421,27 @@ void handle_instruction()
 				NEXT_STATE.HI = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
 				NEXT_STATE.LO = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
 			}
-			sprintf(returnString, "DIVU $%d, $%d\n", rs, rt);
+			sprintf(returnString, "DIVU $r%d, $r%d\n", rs, rt);
 			break;
 				
 		case 0b100100: //AND instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] & CURRENT_STATE.REGS[rt];
-			sprintf(returnString, "AND $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "AND $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 				
 		case 0b100101: //OR instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] | CURRENT_STATE.REGS[rt];
-			sprintf(returnString, "OR $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "OR $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 				
 		case 0b100110: //XOR instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rs] ^ CURRENT_STATE.REGS[rt];
-			sprintf(returnString, "XOR $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "XOR $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 				
 		case 0b100111: //NOR instruction
 			NEXT_STATE.REGS[rd] = ~ (CURRENT_STATE.REGS[rs] | CURRENT_STATE.REGS[rt]);
-			sprintf(returnString, "NOR $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "NOR $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 				
 		case 0b101010: //SLT instruction
@@ -453,17 +453,17 @@ void handle_instruction()
 			{
                 		NEXT_STATE.REGS[rd] = 0x00;
             		}
-			sprintf(returnString, "SLT $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "SLT $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 				
 		case 0b000000: //SLL instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] << immediate;
-			sprintf(returnString, "SLL $%d, $%d, 0x%x\n", rd, rt, sa);
+			sprintf(returnString, "SLL $r%d, $r%d, 0x%x\n", rd, rt, sa);
 			break;
 				
 		case 0b000010: //SRL instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] >> immediate;
-			sprintf(returnString, "SRL $%d, $%d, 0x%x\n", rd, rt, sa);
+			sprintf(returnString, "SRL $r%d, $r%d, 0x%x\n", rd, rt, sa);
 			break;
 				
 		case 0b000011: //SRA instruction
@@ -476,38 +476,38 @@ void handle_instruction()
 			{
 				NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] >> immediate;
 			}
-			sprintf(returnString, "SRA $%d, $%d, 0x%x\n", rd, rt, sa);
+			sprintf(returnString, "SRA $r%d, $r%d, 0x%x\n", rd, rt, sa);
 			break;
 				
 		case 0b010000: //MFHI instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.HI;
 			prevAddress = function;
-			sprintf(returnString, "MFHI $%d\n", rd);
+			sprintf(returnString, "MFHI $r%d\n", rd);
 			break;
 				
 		case 0b010010: //MFLO instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.LO;
 			prevAddress = function;
-			sprintf(returnString, "MFLO $%d\n", rd);
+			sprintf(returnString, "MFLO $r%d\n", rd);
 			break;
 
 		case 0b010001:
-			sprintf(returnString, "MTHI $%d\n", rs);
+			sprintf(returnString, "MTHI $r%d\n", rs);
 			NEXT_STATE.HI = CURRENT_STATE.REGS[rs];
 			break;
 
 		case 0b010011:
-			sprintf(returnString, "MTLO $%d\n", rs);
+			sprintf(returnString, "MTLO $r%d\n", rs);
 			NEXT_STATE.LO = CURRENT_STATE.REGS[rs];
 			break;
 
 		case 0b001000:
-			sprintf(returnString, "JR $%d\n", rs);
+			sprintf(returnString, "JR $r%d\n", rs);
 			jumpAmmount = CURRENT_STATE.REGS[rs] - CURRENT_STATE.PC;
 			break;
 
 		case 0b001001:
-			sprintf(returnString, "JALR $%d, $%d\n", rd, rs);
+			sprintf(returnString, "JALR $r%d, $r%d\n", rd, rs);
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.PC + 8;
 			jumpAmmount =  CURRENT_STATE.REGS[rs] - CURRENT_STATE.PC;
 			break;
@@ -525,7 +525,7 @@ void handle_instruction()
 	
 	// Register case code
 	case 0b000110:
-		sprintf(returnString, "BLEZ $%d, 0x%x\n", rs, immediate);
+		sprintf(returnString, "BLEZ $r%d, 0x%x\n", rs, immediate);
 		offset = offset << 2;
 		if(((offset & 0x00008000)>>15)){
 			offset = offset || 0xFFFF0000;
@@ -538,7 +538,7 @@ void handle_instruction()
 	case 0b000001:
 		switch (rt){
 		case 0b00000:
-			sprintf(returnString, "BLTZ $%d, 0x%x\n", rs, immediate);
+			sprintf(returnString, "BLTZ $r%d, 0x%x\n", rs, immediate);
 			offset = offset << 2;
 				// sign extend (check if most significant bit is a 1)
 				if(((offset & 0x00008000)>>15)){
@@ -550,7 +550,7 @@ void handle_instruction()
 			break;
 
 		case 0b00001:
-			sprintf(returnString, "BGEZ $%d, 0x%x\n", rs, immediate);
+			sprintf(returnString, "BGEZ $r%d, 0x%x\n", rs, immediate);
 			offset = offset << 2;
 			// Do a sign extenstion only if the most signifcant bit is a 1
 			if(((offset & 0x00008000)>>15)){
@@ -567,7 +567,7 @@ void handle_instruction()
 	}
 
 	case 0b000111:
-		sprintf(returnString, "BGTZ $%d, 0x%x\n", rs, immediate);
+		sprintf(returnString, "BGTZ $r%d, 0x%x\n", rs, immediate);
 		offset = offset << 2;
 		// Do a sign extenstion only if the most signifcant bit is a 1
 		if(((offset & 0x00008000)>>15)){
@@ -580,33 +580,33 @@ void handle_instruction()
 
 	// Normal case code
 	case 0b001000:
-		sprintf(returnString, "ADDI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "ADDI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		value = (immediate & 0x00008000) == 0x8000 ? 0xFFFF0000 || immediate : immediate;
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] + value;
 		break;
 	case 0b001001:
-		sprintf(returnString, "ADDIU $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "ADDIU $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		value = (immediate & 0x00008000) == 0x8000 ? 0xFFFF0000 || immediate : immediate;
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] + value;
 		break;
 
 	case 0b001100:
-		sprintf(returnString, "ANDI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "ANDI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] & immediate;
 		break;
 
 	case 0b001101:
-		sprintf(returnString, "ORI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "ORI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] & immediate;
 		break;
 
 	case 0b001110:
-		sprintf(returnString, "XORI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "XORI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] ^ immediate;
 		break;
 
 	case 0b001010:
-		sprintf(returnString, "SLTI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "SLTI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		// Do a sign extenstion only if the most signifcant bit is a 1
 		if(((immediate & 0x00008000)>>15)){
 			immediate = immediate || 0xFFFF0000;
@@ -620,14 +620,14 @@ void handle_instruction()
 		break;
 
 	case 0b100011:
-		sprintf(returnString, "LW $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LW $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		offset = (offset & 0x00008000) == 0x8000 ? 0xFFFF0000 || offset : offset;
 		offset = CURRENT_STATE.REGS[base] + offset;
 		NEXT_STATE.REGS[rt] = mem_read_32(offset);
 		break;
 
 	case 0b100000:
-		sprintf(returnString, "LB $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LB $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		offset = (offset & 0x00008000) == 0x8000 ? 0xFFFF0000 || offset : offset;
 		value = CURRENT_STATE.REGS[base] + offset;
 		value2 = mem_read_32(value) & 0x000000FF;
@@ -636,7 +636,7 @@ void handle_instruction()
 		break;
 
 	case 0b100001:
-		sprintf(returnString, "LH $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LH $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		offset = (offset & 0x00008000) == 0x8000 ? 0xFFFF0000 || offset : offset;
 		value = CURRENT_STATE.REGS[base] + offset;
 		value2 = mem_read_32(value) & 0x0000FFFF;
@@ -645,12 +645,12 @@ void handle_instruction()
 		break;
 
 	case 0b001111:
-		sprintf(returnString, "LUI $%d, 0x%x\n", rt, immediate);
+		sprintf(returnString, "LUI $r%d, 0x%x\n", rt, immediate);
 		NEXT_STATE.REGS[rt] = (immediate << 16);
 		break;
 
 	case 0b101011:
-		sprintf(returnString, "SW $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SW $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		if(((offset & 0x00008000)>>15)){
 			offset = offset || 0xFFFF0000;
 		}
@@ -660,7 +660,7 @@ void handle_instruction()
 		break;
 
 	case 0b101000:
-		sprintf(returnString, "SB $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SB $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		if(((offset & 0x00008000)>>15)){
 			offset = offset || 0xFFFF0000;
 		}
@@ -669,14 +669,14 @@ void handle_instruction()
 		break;
 
 	case 0b101001:
-		sprintf(returnString, "SH $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SH $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		offset = (offset & 0x00008000) == 0x8000 ? 0xFFFF0000 || offset : offset;
 		value = CURRENT_STATE.REGS[base] + offset;
 		mem_write_32(value, CURRENT_STATE.REGS[rt] & 0x0000FFFF);
 		break;
 
 	case 0b000100:
-		sprintf(returnString, "BEQ $%d, $%d, 0x%x\n", rs, rt, immediate);
+		sprintf(returnString, "BEQ $r%d, $r%d, 0x%x\n", rs, rt, immediate);
 		offset = offset << 2;
 		// Do a sign extenstion only if the most signifcant bit is a 1
 		if(((offset & 0x00008000)>>15)){
@@ -688,7 +688,7 @@ void handle_instruction()
 		break;
 
 	case 0b000101:
-		sprintf(returnString, "BNE $%d, $%d, 0x%x\n", rs, rt, immediate);
+		sprintf(returnString, "BNE $r%d, $r%d, 0x%x\n", rs, rt, immediate);
 		offset = offset << 2;
 		if(((offset & 0x00008000)>>15)){
 			offset = offset || 0xFFFF0000;
@@ -818,70 +818,70 @@ void print_instruction(uint32_t addr){
 		switch (function)
 		{
 		case 0b100000:
-			sprintf(returnString, "ADD $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "ADD $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 		case 0b100001:
-			sprintf(returnString, "ADDU $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "ADDU $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 		case 0b100010:
-			sprintf(returnString, "SUB $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "SUB $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 		case 0b100011:
-			sprintf(returnString, "SUBU $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "SUBU $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 		case 0b011000:
-			sprintf(returnString, "MULT $%d, $%d\n", rs, rt);
+			sprintf(returnString, "MULT $r%d, $r%d\n", rs, rt);
 			break;
 		case 0b011001:
-			sprintf(returnString, "MULTU $%d, $%d\n", rs, rt);
+			sprintf(returnString, "MULTU $r%d, $rr%d\n", rs, rt);
 			break;
 		case 0b011010:
-			sprintf(returnString, "DIV $%d, $%d\n", rs, rt);
+			sprintf(returnString, "DIV $r%d, $r%d\n", rs, rt);
 			break;
 		case 0b011011:
-			sprintf(returnString, "DIVU $%d, $%d\n", rs, rt);
+			sprintf(returnString, "DIVU $r%d, $r%d\n", rs, rt);
 			break;
 		case 0b100100:
-			sprintf(returnString, "AND $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "AND $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 		case 0b100101:
-			sprintf(returnString, "OR $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "OR $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 		case 0b100110:
-			sprintf(returnString, "XOR $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "XOR $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 		case 0b100111:
-			sprintf(returnString, "NOR $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "NOR $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 		case 0b101010:
-			sprintf(returnString, "SLT $%d, $%d, $%d\n", rd, rs, rt);
+			sprintf(returnString, "SLT $r%d, $r%d, $r%d\n", rd, rs, rt);
 			break;
 		case 0b000000:
-			sprintf(returnString, "SLL $%d, $%d, 0x%x\n", rd, rt, sa);
+			sprintf(returnString, "SLL $r%d, $r%d, 0x%x\n", rd, rt, sa);
 			break;
 		case 0b000010:
-			sprintf(returnString, "SRL $%d, $%d, 0x%x\n", rd, rt, sa);
+			sprintf(returnString, "SRL $r%d, $r%d, 0x%x\n", rd, rt, sa);
 			break;
 		case 0b000011:
-			sprintf(returnString, "SRA $%d, $%d, 0x%d\n", rd, rt, sa);
+			sprintf(returnString, "SRA $r%d, $r%d, 0x%d\n", rd, rt, sa);
 			break;
 		case 0b010000:
-			sprintf(returnString, "MFHI $%d\n", rd);
+			sprintf(returnString, "MFHI $r%d\n", rd);
 			break;
 		case 0b010010:
-			sprintf(returnString, "MFLO $%d\n", rd);
+			sprintf(returnString, "MFLO $r%d\n", rd);
 			break;
 		case 0b010001:
-			sprintf(returnString, "MTHI $%d\n", rs);
+			sprintf(returnString, "MTHI $r%d\n", rs);
 			break;
 		case 0b010011:
-			sprintf(returnString, "MTLO $%d\n", rs);
+			sprintf(returnString, "MTLO $r%d\n", rs);
 			break;
 		case 0b001000:
-			sprintf(returnString, "JR $%d\n", rs);
+			sprintf(returnString, "JR $r%d\n", rs);
 			break;
 		case 0b001001:
-			sprintf(returnString, "JALR $%d, $%d\n", rd, rs);
+			sprintf(returnString, "JALR $r%d, $r%d\n", rd, rs);
 			break;
 		case 0b001100:
 			sprintf(returnString, "SYSCALL\n");
@@ -894,69 +894,69 @@ void print_instruction(uint32_t addr){
 	
 	// Register case code
 	case 0b000110:
-		sprintf(returnString, "BLEZ $%d, 0x%x\n", rs, immediate);
+		sprintf(returnString, "BLEZ $r%d, 0x%x\n", rs, immediate);
 		break;
 	case 0b000001:
 		switch (rt){
 		case 0b00000:
-			sprintf(returnString, "BLTZ $%d, 0x%x\n", rs, immediate);
+			sprintf(returnString, "BLTZ $r%d, 0x%x\n", rs, immediate);
 			break;
 		case 0b00001:
-			sprintf(returnString, "BGEZ $%d, 0x%x\n", rs, immediate);
+			sprintf(returnString, "BGEZ $r%d, 0x%x\n", rs, immediate);
 			break;
 		default:
 			printf("No Register Type Instruction Found\n");
 			break;
 	}
 	case 0b000111:
-		sprintf(returnString, "BGTZ $%d, 0x%x\n", rs, immediate);
+		sprintf(returnString, "BGTZ $r%d, 0x%x\n", rs, immediate);
 		break;
 
 	// Normal case code
 	case 0b001000:
-		sprintf(returnString, "ADDI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "ADDI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001001:
-		sprintf(returnString, "ADDIU $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "ADDIU $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001100:
-		sprintf(returnString, "ANDI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "ANDI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001101:
-		sprintf(returnString, "ORI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "ORI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001110:
-		sprintf(returnString, "XORI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "XORI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001010:
-		sprintf(returnString, "SLTI $%d, $%d, 0x%x\n", rt, rs, immediate);
+		sprintf(returnString, "SLTI $r%d, $r%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b100011:
-		sprintf(returnString, "LW $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LW $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		break;
 	case 0b100000:
-		sprintf(returnString, "LB $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LB $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		break;
 	case 0b100001:
-		sprintf(returnString, "LH $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LH $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		break;
 	case 0b001111:
-		sprintf(returnString, "LUI $%d, 0x%x\n", rt, immediate);
+		sprintf(returnString, "LUI $r%d, 0x%x\n", rt, immediate);
 		break;
 	case 0b101011:
-		sprintf(returnString, "SW $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SW $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		break;
 	case 0b101000:
-		sprintf(returnString, "SB $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SB $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		break;
 	case 0b101001:
-		sprintf(returnString, "SH $%d, 0x%x($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SH $r%d, 0x%x($r%d)\n", rt, immediate, rs);
 		break;
 	case 0b000100:
-		sprintf(returnString, "BEQ $%d, $%d, 0x%x\n", rs, rt, immediate);
+		sprintf(returnString, "BEQ $r%d, $r%d, 0x%x\n", rs, rt, immediate);
 		break;
 	case 0b000101:
-		sprintf(returnString, "BNE $%d, $%d, 0x%x\n", rs, rt, immediate);
+		sprintf(returnString, "BNE $r%d, $r%d, 0x%x\n", rs, rt, immediate);
 		break;
 	case 0b000010:
 		sprintf(returnString, "J %lu\n", (size_t)(target) << 2);
