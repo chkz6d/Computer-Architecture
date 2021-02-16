@@ -340,8 +340,9 @@ void handle_instruction()
 	// Variables needed for operation
 	char returnString[40];
 	uint32_t result, base, offset, value, value2, location;
-	int jumpAmmount; 
+	int jumpAmmount = 4; 
 	uint64_t temp;
+	uint32_t highBits = 0xFFFFFFFF;
 
 	switch (special)
 	{
@@ -457,12 +458,12 @@ void handle_instruction()
 				
 		case 0b000000: //SLL instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] << immediate;
-			sprintf(returnString, "SLL $%d, $%d, $%d\n", rd, rt, sa);
+			sprintf(returnString, "SLL $%d, $%d, 0x%x\n", rd, rt, sa);
 			break;
 				
 		case 0b000010: //SRL instruction
 			NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] >> immediate;
-			sprintf(returnString, "SRL $%d, $%d, $%d\n", rd, rt, sa);
+			sprintf(returnString, "SRL $%d, $%d, 0x%x\n", rd, rt, sa);
 			break;
 				
 		case 0b000011: //SRA instruction
@@ -475,7 +476,7 @@ void handle_instruction()
 			{
 				NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] >> immediate;
 			}
-			sprintf(returnString, "SRA $%d, $%d, $%d\n", rd, rt, sa);
+			sprintf(returnString, "SRA $%d, $%d, 0x%x\n", rd, rt, sa);
 			break;
 				
 		case 0b010000: //MFHI instruction
@@ -524,7 +525,7 @@ void handle_instruction()
 	
 	// Register case code
 	case 0b000110:
-		sprintf(returnString, "BLEZ $%d, %d\n", rs, immediate);
+		sprintf(returnString, "BLEZ $%d, 0x%x\n", rs, immediate);
 		offset = offset << 2;
 		if(((offset & 0x00008000)>>15)){
 			offset = offset || 0xFFFF0000;
@@ -537,7 +538,7 @@ void handle_instruction()
 	case 0b000001:
 		switch (rt){
 		case 0b00000:
-			sprintf(returnString, "BLTZ $%d, %d\n", rs, immediate);
+			sprintf(returnString, "BLTZ $%d, 0x%x\n", rs, immediate);
 			offset = offset << 2;
 				// sign extend (check if most significant bit is a 1)
 				if(((offset & 0x00008000)>>15)){
@@ -549,7 +550,7 @@ void handle_instruction()
 			break;
 
 		case 0b00001:
-			sprintf(returnString, "BGEZ $%d, %d\n", rs, immediate);
+			sprintf(returnString, "BGEZ $%d, 0x%x\n", rs, immediate);
 			offset = offset << 2;
 			// Do a sign extenstion only if the most signifcant bit is a 1
 			if(((offset & 0x00008000)>>15)){
@@ -566,7 +567,7 @@ void handle_instruction()
 	}
 
 	case 0b000111:
-		sprintf(returnString, "BGTZ $%d, %d\n", rs, immediate);
+		sprintf(returnString, "BGTZ $%d, 0x%x\n", rs, immediate);
 		offset = offset << 2;
 		// Do a sign extenstion only if the most signifcant bit is a 1
 		if(((offset & 0x00008000)>>15)){
@@ -579,33 +580,33 @@ void handle_instruction()
 
 	// Normal case code
 	case 0b001000:
-		sprintf(returnString, "ADDI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "ADDI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		value = (immediate & 0x00008000) == 0x8000 ? 0xFFFF0000 || immediate : immediate;
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] + value;
 		break;
 	case 0b001001:
-		sprintf(returnString, "ADDIU $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "ADDIU $%d, $%d, 0x%x\n", rt, rs, immediate);
 		value = (immediate & 0x00008000) == 0x8000 ? 0xFFFF0000 || immediate : immediate;
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] + value;
 		break;
 
 	case 0b001100:
-		sprintf(returnString, "ANDI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "ANDI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] & immediate;
 		break;
 
 	case 0b001101:
-		sprintf(returnString, "ORI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "ORI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] & immediate;
 		break;
 
 	case 0b001110:
-		sprintf(returnString, "XORI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "XORI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] ^ immediate;
 		break;
 
 	case 0b001010:
-		sprintf(returnString, "SLTI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "SLTI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		// Do a sign extenstion only if the most signifcant bit is a 1
 		if(((immediate & 0x00008000)>>15)){
 			immediate = immediate || 0xFFFF0000;
@@ -619,14 +620,14 @@ void handle_instruction()
 		break;
 
 	case 0b100011:
-		sprintf(returnString, "LW $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LW $%d, 0x%x($%d)\n", rt, immediate, rs);
 		offset = (offset & 0x00008000) == 0x8000 ? 0xFFFF0000 || offset : offset;
 		offset = CURRENT_STATE.REGS[base] + offset;
 		NEXT_STATE.REGS[rt] = mem_read_32(offset);
 		break;
 
 	case 0b100000:
-		sprintf(returnString, "LB $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LB $%d, 0x%x($%d)\n", rt, immediate, rs);
 		offset = (offset & 0x00008000) == 0x8000 ? 0xFFFF0000 || offset : offset;
 		value = CURRENT_STATE.REGS[base] + offset;
 		value2 = mem_read_32(value) & 0x000000FF;
@@ -635,7 +636,7 @@ void handle_instruction()
 		break;
 
 	case 0b100001:
-		sprintf(returnString, "LH $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LH $%d, 0x%x($%d)\n", rt, immediate, rs);
 		offset = (offset & 0x00008000) == 0x8000 ? 0xFFFF0000 || offset : offset;
 		value = CURRENT_STATE.REGS[base] + offset;
 		value2 = mem_read_32(value) & 0x0000FFFF;
@@ -644,12 +645,12 @@ void handle_instruction()
 		break;
 
 	case 0b001111:
-		sprintf(returnString, "LUI $%d, %d($%d)\n", rt, immediate, rs);
-		NEXT_STATE.REGS[rt] = (immediate << 16) || 0x0000;
+		sprintf(returnString, "LUI $%d, 0x%x\n", rt, immediate);
+		NEXT_STATE.REGS[rt] = (immediate << 16);
 		break;
 
 	case 0b101011:
-		sprintf(returnString, "SW $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SW $%d, 0x%x($%d)\n", rt, immediate, rs);
 		if(((offset & 0x00008000)>>15)){
 			offset = offset || 0xFFFF0000;
 		}
@@ -659,7 +660,7 @@ void handle_instruction()
 		break;
 
 	case 0b101000:
-		sprintf(returnString, "SB $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SB $%d, 0x%x($%d)\n", rt, immediate, rs);
 		if(((offset & 0x00008000)>>15)){
 			offset = offset || 0xFFFF0000;
 		}
@@ -668,26 +669,26 @@ void handle_instruction()
 		break;
 
 	case 0b101001:
-		sprintf(returnString, "SH $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SH $%d, 0x%x($%d)\n", rt, immediate, rs);
 		offset = (offset & 0x00008000) == 0x8000 ? 0xFFFF0000 || offset : offset;
 		value = CURRENT_STATE.REGS[base] + offset;
 		mem_write_32(value, CURRENT_STATE.REGS[rt] & 0x0000FFFF);
 		break;
 
 	case 0b000100:
-		sprintf(returnString, "BEQ $%d, $%d, %d\n", rs, rt, immediate);
+		sprintf(returnString, "BEQ $%d, $%d, 0x%x\n", rs, rt, immediate);
 		offset = offset << 2;
 		// Do a sign extenstion only if the most signifcant bit is a 1
 		if(((offset & 0x00008000)>>15)){
 			offset = offset || 0xFFFF0000;
 		}
 		if(CURRENT_STATE.REGS[rs] == CURRENT_STATE.REGS[rt]){
-			jumpAmmount = offset;
+			CURRENT_STATE.PC = CURRENT_STATE.PC + offset;
 		}
 		break;
 
 	case 0b000101:
-		sprintf(returnString, "BNE $%d, $%d, %d\n", rs, rt, immediate);
+		sprintf(returnString, "BNE $%d, $%d, 0x%x\n", rs, rt, immediate);
 		offset = offset << 2;
 		if(((offset & 0x00008000)>>15)){
 			offset = offset || 0xFFFF0000;
@@ -700,21 +701,30 @@ void handle_instruction()
 	case 0b000010:
 		sprintf(returnString, "J %lu\n", (size_t)(target) << 2);
 		target = target << 2;
-		jumpAmmount = (target || special);
-
-		// Jump to that address with the delay of one instruction
+		highBits = 0xF0000000 & CURRENT_STATE.PC;
+		jumpAmmount = (target | highBits);// - CURRENT_STATE.PC;
+		
+		// try to find the offset, so that we can jump to that address
 		offset = jumpAmmount - CURRENT_STATE.PC;
 		jumpAmmount = offset;
+
+		// Jump to that address with the delay of one instruction
+		// NEXT_STATE.PC = (CURRENT_STATE.PC & 0xF0000000) || target;
 		break;
 
 	case 0b000011:
 		sprintf(returnString, "JAL %lu\n", (size_t)(target) << 2);
 		target = target << 2;
-		jumpAmmount = (target || special);
 
-		// Jump to that address with the delay of one instruction
+		highBits = 0xF0000000 & CURRENT_STATE.PC;
+		jumpAmmount = (target | highBits);
+		
+		// try to find the offset, so that we can jump to that address
 		offset = jumpAmmount - CURRENT_STATE.PC;
 		jumpAmmount = offset;
+
+		// Jump to that address with the delay of one instruction
+		// NEXT_STATE.PC = (CURRENT_STATE.PC & 0xF0000000) || target;
 
 		// Address of instruction after delay placed in link register
 		NEXT_STATE.REGS[31] = CURRENT_STATE.PC + 8;
@@ -726,6 +736,7 @@ void handle_instruction()
 	}
 
 	printf("%s", returnString);
+	NEXT_STATE.PC = CURRENT_STATE.PC + jumpAmmount;
 	instructionNum += 1;
 }
 
@@ -846,13 +857,13 @@ void print_instruction(uint32_t addr){
 			sprintf(returnString, "SLT $%d, $%d, $%d\n", rd, rs, rt);
 			break;
 		case 0b000000:
-			sprintf(returnString, "SLL $%d, $%d, $%d\n", rd, rt, sa);
+			sprintf(returnString, "SLL $%d, $%d, 0x%x\n", rd, rt, sa);
 			break;
 		case 0b000010:
-			sprintf(returnString, "SRL $%d, $%d, $%d\n", rd, rt, sa);
+			sprintf(returnString, "SRL $%d, $%d, 0x%x\n", rd, rt, sa);
 			break;
 		case 0b000011:
-			sprintf(returnString, "SRA $%d, $%d, $%d\n", rd, rt, sa);
+			sprintf(returnString, "SRA $%d, $%d, 0x%d\n", rd, rt, sa);
 			break;
 		case 0b010000:
 			sprintf(returnString, "MFHI $%d\n", rd);
@@ -883,69 +894,69 @@ void print_instruction(uint32_t addr){
 	
 	// Register case code
 	case 0b000110:
-		sprintf(returnString, "BLEZ $%d, %d\n", rs, immediate);
+		sprintf(returnString, "BLEZ $%d, 0x%x\n", rs, immediate);
 		break;
 	case 0b000001:
 		switch (rt){
 		case 0b00000:
-			sprintf(returnString, "BLTZ $%d, %d\n", rs, immediate);
+			sprintf(returnString, "BLTZ $%d, 0x%x\n", rs, immediate);
 			break;
 		case 0b00001:
-			sprintf(returnString, "BGEZ $%d, %d\n", rs, immediate);
+			sprintf(returnString, "BGEZ $%d, 0x%x\n", rs, immediate);
 			break;
 		default:
 			printf("No Register Type Instruction Found\n");
 			break;
 	}
 	case 0b000111:
-		sprintf(returnString, "BGTZ $%d, %d\n", rs, immediate);
+		sprintf(returnString, "BGTZ $%d, 0x%x\n", rs, immediate);
 		break;
 
 	// Normal case code
 	case 0b001000:
-		sprintf(returnString, "ADDI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "ADDI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001001:
-		sprintf(returnString, "ADDIU $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "ADDIU $%d, $%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001100:
-		sprintf(returnString, "ANDI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "ANDI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001101:
-		sprintf(returnString, "ORI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "ORI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001110:
-		sprintf(returnString, "XORI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "XORI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b001010:
-		sprintf(returnString, "SLTI $%d, $%d, %d\n", rt, rs, immediate);
+		sprintf(returnString, "SLTI $%d, $%d, 0x%x\n", rt, rs, immediate);
 		break;
 	case 0b100011:
-		sprintf(returnString, "LW $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LW $%d, 0x%x($%d)\n", rt, immediate, rs);
 		break;
 	case 0b100000:
-		sprintf(returnString, "LB $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LB $%d, 0x%x($%d)\n", rt, immediate, rs);
 		break;
 	case 0b100001:
-		sprintf(returnString, "LH $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LH $%d, 0x%x($%d)\n", rt, immediate, rs);
 		break;
 	case 0b001111:
-		sprintf(returnString, "LUI $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "LUI $%d, 0x%x\n", rt, immediate);
 		break;
 	case 0b101011:
-		sprintf(returnString, "SW $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SW $%d, 0x%x($%d)\n", rt, immediate, rs);
 		break;
 	case 0b101000:
-		sprintf(returnString, "SB $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SB $%d, 0x%x($%d)\n", rt, immediate, rs);
 		break;
 	case 0b101001:
-		sprintf(returnString, "SH $%d, %d($%d)\n", rt, immediate, rs);
+		sprintf(returnString, "SH $%d, 0x%x($%d)\n", rt, immediate, rs);
 		break;
 	case 0b000100:
-		sprintf(returnString, "BEQ $%d, $%d, %d\n", rs, rt, immediate);
+		sprintf(returnString, "BEQ $%d, $%d, 0x%x\n", rs, rt, immediate);
 		break;
 	case 0b000101:
-		sprintf(returnString, "BNE $%d, $%d, %d\n", rs, rt, immediate);
+		sprintf(returnString, "BNE $%d, $%d, 0x%x\n", rs, rt, immediate);
 		break;
 	case 0b000010:
 		sprintf(returnString, "J %lu\n", (size_t)(target) << 2);
