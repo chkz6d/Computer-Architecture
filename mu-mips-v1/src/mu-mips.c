@@ -377,27 +377,26 @@ void handle_instruction()
 					temp = CURRENT_STATE.REGS[rs] * CURRENT_STATE.REGS[rt];
 					NEXT_STATE.HI = temp >> 32;
 					NEXT_STATE.LO = temp & 0xFFFFFFFF;
-					printf("%x\n", temp);
 					sprintf(returnString, "MULT $r%d, $r%d\n", rs, rt);
 					break;
 						
-				case 0b011001: //MULTU instruction
+				case 0b011001:{ //MULTU instruction
 					temp = CURRENT_STATE.REGS[rs] * CURRENT_STATE.REGS[rt];
 					NEXT_STATE.HI = temp >> 32;
-					NEXT_STATE.LO = temp;
+					NEXT_STATE.LO = temp & 0xFFFFFFFF;
 					sprintf(returnString, "MULTU $r%d, $r%d\n", rs, rt);
+				}
 					break;
 						
 				case 0b011010: //DIV instruction
-					NEXT_STATE.HI = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
-					NEXT_STATE.LO = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
-					// }
+					NEXT_STATE.HI = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
+					NEXT_STATE.LO = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
 					sprintf(returnString, "DIV $r%d, $r%d\n", rs, rt);
 					break;
 						
 				case 0b011011: //DIVU instruction
-					NEXT_STATE.HI = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
-					NEXT_STATE.LO = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
+					NEXT_STATE.HI = CURRENT_STATE.REGS[rs] % CURRENT_STATE.REGS[rt];
+					NEXT_STATE.LO = CURRENT_STATE.REGS[rs] / CURRENT_STATE.REGS[rt];
 					sprintf(returnString, "DIVU $r%d, $r%d\n", rs, rt);
 					break;
 						
@@ -444,7 +443,7 @@ void handle_instruction()
 					break;
 						
 				case 0b000011: //SRA instruction
-					if((CURRENT_STATE.REGS[rt] & 0x80000000)>>31)
+					if(CURRENT_STATE.REGS[rt] >> 31)
 					{
 						NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rt] >> sa;
 						NEXT_STATE.REGS[rd] |= 0x80000000;
@@ -479,6 +478,7 @@ void handle_instruction()
 				case 0b001000:
 					sprintf(returnString, "JR $r%d\n", rs);
 					jumpAmmount = CURRENT_STATE.REGS[rs] - CURRENT_STATE.PC;
+					printf("\njumpammount: %x\n", jumpAmmount);
 					break;
 
 				case 0b001001:
@@ -563,8 +563,14 @@ void handle_instruction()
 
 		case 0b001001:
 			sprintf(returnString, "ADDIU $r%d, $r%d, 0x%x\n", rt, rs, immediate);
-			value = (immediate & 0x00008000) == 0x8000 ? 0xFFFF0000 | immediate : immediate;
-			NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] + value;
+			//value = (immediate & 0x00008000) == 0x8000 ? 0xFFFF0000 | immediate : immediate;
+			if(immediate >> 15) {	// then negative number
+				immediate = 0xFFFF0000 | immediate; //sign extend with 1's
+			}
+			NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] + immediate;
+			printf("\ncurrent rs addiu: %x\n", CURRENT_STATE.REGS[rs]);
+			printf("\nimmediate addiu: %x\n", immediate);
+			printf("\nnext rt addiu: %x\n", NEXT_STATE.REGS[rt]);
 			break;
 
 		case 0b001100:
