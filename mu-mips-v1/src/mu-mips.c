@@ -6,9 +6,9 @@
 #include "mu-mips.h"
 
 // Globals
-int instructionNum = 0;
-uint32_t baseInstruction = MEM_TEXT_BEGIN;
+int jump = 0;
 uint32_t prevAddress;
+uint32_t jumpAddress;
 
 /***************************************************************/
 /* Print out a list of commands available                                                                  */
@@ -476,15 +476,20 @@ void handle_instruction()
 					break;
 
 				case 0b001000:
+					jump = 1;
+					prevAddress = CURRENT_STATE.PC;
 					sprintf(returnString, "JR $r%d\n", rs);
-					jumpAmmount = CURRENT_STATE.REGS[rs] - CURRENT_STATE.PC;
-					printf("\njumpammount: %x\n", jumpAmmount);
+					//jumpAmmount = CURRENT_STATE.REGS[rs] - CURRENT_STATE.PC;
+					jumpAddress = CURRENT_STATE.REGS[rs];
 					break;
 
 				case 0b001001:
+					jump = 1;
+					prevAddress = CURRENT_STATE.PC;
 					sprintf(returnString, "JALR $r%d, $r%d\n", rd, rs);
 					NEXT_STATE.REGS[rd] = CURRENT_STATE.PC + 8;
-					jumpAmmount =  CURRENT_STATE.REGS[rs] - CURRENT_STATE.PC;
+					//jumpAmmount =  CURRENT_STATE.REGS[rs] - CURRENT_STATE.PC;
+					jumpAddress = CURRENT_STATE.REGS[rs];
 					break;
 
 				case 0b001100:
@@ -563,14 +568,8 @@ void handle_instruction()
 
 		case 0b001001:
 			sprintf(returnString, "ADDIU $r%d, $r%d, 0x%x\n", rt, rs, immediate);
-			//value = (immediate & 0x00008000) == 0x8000 ? 0xFFFF0000 | immediate : immediate;
-			if(immediate >> 15) {	// then negative number
-				immediate = 0xFFFF0000 | immediate; //sign extend with 1's
-			}
-			NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] + immediate;
-			printf("\ncurrent rs addiu: %x\n", CURRENT_STATE.REGS[rs]);
-			printf("\nimmediate addiu: %x\n", immediate);
-			printf("\nnext rt addiu: %x\n", NEXT_STATE.REGS[rt]);
+			value = (immediate & 0x00008000) == 0x8000 ? 0xFFFF0000 | immediate : immediate;
+			NEXT_STATE.REGS[rt] = CURRENT_STATE.REGS[rs] + value;
 			break;
 
 		case 0b001100:
@@ -706,29 +705,33 @@ void handle_instruction()
 			break;
 
 		case 0b000010:
+			jump = 1;
+			prevAddress = CURRENT_STATE.PC;
 			sprintf(returnString, "J %lu\n", (size_t)(target) << 2);
 			target = target << 2;
 			highBits = 0xF0000000 & CURRENT_STATE.PC;
-			jumpAmmount = (target | highBits);// - CURRENT_STATE.PC;
+			location = (target | highBits);// - CURRENT_STATE.PC;
 			// try to find the offset, so that we can jump to that address
-			offset = jumpAmmount - CURRENT_STATE.PC;
-			jumpAmmount = offset;
-
+			// offset = jumpAmmount - CURRENT_STATE.PC;
+			// jumpAmmount = offset;
+			jumpAddress = (CURRENT_STATE.PC & 0xF0000000) | target;
 			// Jump to that address with the delay of one instruction
 			// NEXT_STATE.PC = (CURRENT_STATE.PC & 0xF0000000) || target;
 			break;
 
 		case 0b000011:
+			jump = 1;
+			prevAddress = CURRENT_STATE.PC;
 			sprintf(returnString, "JAL %lu\n", (size_t)(target) << 2);
 			target = target << 2;
 
 			highBits = 0xF0000000 & CURRENT_STATE.PC;
-			jumpAmmount = (target | highBits);
+			location = (target | highBits);
 			// try to find the offset, so that we can jump to that address
-			offset = jumpAmmount - CURRENT_STATE.PC;
-			
-			jumpAmmount = offset;
+			// offset = jumpAmmount - CURRENT_STATE.PC;
+			// jumpAmmount = offset;
 
+			jumpAddress = (CURRENT_STATE.PC & 0xF0000000) | target;
 			// Jump to that address with the delay of one instruction
 			// NEXT_STATE.PC = (CURRENT_STATE.PC & 0xF0000000) || target;
 
@@ -741,9 +744,25 @@ void handle_instruction()
 			break;
 	}
 
-	printf("[0x%x]	", CURRENT_STATE.PC);
+	printf("[0x%x]		", CURRENT_STATE.PC);
 	printf("%s", returnString);
-	NEXT_STATE.PC = CURRENT_STATE.PC + jumpAmmount;
+	if(jump == 1)
+	{
+		if((prevAddress+4) == CURRENT_STATE.PC)//if we need to execute jump instruction next
+		{
+			NEXT_STATE.PC = jumpAddress;
+			jump = 0;
+			prevAddress = 0x0;
+		}
+		else//if we have not executed jump instruction but needs to execute one instruction
+		{
+			NEXT_STATE.PC = CURRENT_STATE.PC + jumpAmmount;
+		}
+	}
+	else
+	{
+		NEXT_STATE.PC = CURRENT_STATE.PC + jumpAmmount;
+	}
 
 }
 
