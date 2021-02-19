@@ -334,10 +334,8 @@ void handle_instruction()
 
 	// Variables needed for operation
 	char returnString[40];
-	uint32_t result, value, value2, location;
-	int jumpAmmount = 4; 
-	uint64_t temp;
-	uint32_t highBits = 0xFFFFFFFF;
+	uint32_t value, value2, location, temp;
+	int jumpAmmount = 4;
 	uint32_t offset = immediate;
 
 	uint32_t base = rs;
@@ -472,13 +470,15 @@ void handle_instruction()
 
 		case 0b001000:
 			sprintf(returnString, "JR $r%d\n", rs);
-			jumpAmmount = CURRENT_STATE.REGS[rs] - CURRENT_STATE.PC;
+			temp = CURRENT_STATE.REGS[rs];
+			jumpAmmount = temp - CURRENT_STATE.PC;
 			break;
 
 		case 0b001001:
 			sprintf(returnString, "JALR $r%d, $r%d\n", rd, rs);
-			NEXT_STATE.REGS[rd] = CURRENT_STATE.PC + 8;
-			jumpAmmount =  CURRENT_STATE.REGS[rs] - CURRENT_STATE.PC;
+			temp = CURRENT_STATE.REGS[rs];
+			NEXT_STATE.REGS[rd] = CURRENT_STATE.PC + 4;
+			jumpAmmount = temp - CURRENT_STATE.PC;
 			break;
 
 		case 0b001100:
@@ -673,38 +673,21 @@ void handle_instruction()
 		break;
 
 	case 0b000010:
-
 		sprintf(returnString, "J %lu\n", (size_t)(target) << 2);
 		target = target << 2;
-
-		highBits = 0xF0000000 & CURRENT_STATE.PC;
-		jumpAmmount = (target | highBits);// - CURRENT_STATE.PC;
-		
-		// try to find the offset, so that we can jump to that address
-		offset = jumpAmmount - CURRENT_STATE.PC;
-		jumpAmmount = offset;
-
-		// Jump to that address with the delay of one instruction
+		temp = 0xF0000000 & CURRENT_STATE.PC;
+		jumpAmmount = (target | temp);// - CURRENT_STATE.PC;
+		immediate = jumpAmmount - CURRENT_STATE.PC;
+		jumpAmmount = immediate;
 		NEXT_STATE.PC = (CURRENT_STATE.PC & 0xF0000000) || target;
 		break;
 
 	case 0b000011:
-
 		sprintf(returnString, "JAL %lu\n", (size_t)(target) << 2);
 		target = target << 2;
-
-		highBits = 0xF0000000 & CURRENT_STATE.PC;
-		jumpAmmount = (target | highBits);
-		
-		// try to find the offset, so that we can jump to that address
-		offset = jumpAmmount - CURRENT_STATE.PC;
-		jumpAmmount = offset;
-
-		// Jump to that address with the delay of one instruction
-		NEXT_STATE.PC = (CURRENT_STATE.PC & 0xF0000000) || target;
-
-		// Address of instruction after delay placed in link register
-		NEXT_STATE.REGS[31] = CURRENT_STATE.PC + 8;
+		temp = target;
+		NEXT_STATE.REGS[31] = CURRENT_STATE.PC + 4;
+		jumpAmmount = temp - CURRENT_STATE.PC;
 		break;
 
 	default:
