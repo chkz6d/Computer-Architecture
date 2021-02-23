@@ -32,7 +32,7 @@ void printArray(int arr[], int size)
 // Driver program to test above functions 
 int main() 
 { 
-    int arr[] = {64, 34, 25, 12, 22, 11, 90}; 
+    int arr[] = {5, 3, 6, 8, 9, 1, 4, 7, 2, 10}; 
     int n = sizeof(arr)/sizeof(arr[0]); 
     bubbleSort(arr, n); 
     printf("Sorted array: \n"); 
